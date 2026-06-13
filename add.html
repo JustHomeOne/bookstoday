@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Добавление книги</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1>Добавление книги</h1>
+      <p>Отдельная страница для создания новой книги. Данные сохраняются локально.</p>
+      <p class="small-link"><a href="index.html">Посмотреть список книг</a></p>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="card">
+      <h2>Добавить новую книгу</h2>
+      <form id="book-form">
+        <div class="field-group">
+          <label for="title">Название</label>
+          <input id="title" name="title" type="text" required />
+        </div>
+        <div class="field-group">
+          <label for="author">Автор</label>
+          <input id="author" name="author" type="text" required />
+        </div>
+        <div class="field-row">
+          <div class="field-group">
+            <label for="year">Год</label>
+            <input id="year" name="year" type="number" min="0" max="2100" />
+          </div>
+          <div class="field-group">
+            <label for="isbn">ISBN</label>
+            <input id="isbn" name="isbn" type="text" />
+          </div>
+        </div>
+        <button type="submit" class="btn">Добавить книгу</button>
+      </form>
+      <p id="status" class="status"></p>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>

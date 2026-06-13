@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Books — Главная библиотека</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1>Books</h1>
+      <p>Главная страница библиотеки с поиском, фильтрами и заранее подготовленными слотами для книг.</p>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="card search-card">
+      <div class="search-grid">
+        <div class="field-group">
+          <label for="search-query">Поиск по названию или автору</label>
+          <input id="search-query" type="search" placeholder="Введите название или автора" />
+        </div>
+        <div class="field-group">
+          <label for="filter-author">Фильтр по автору</label>
+          <input id="filter-author" type="search" placeholder="Введите автора" />
+        </div>
+        <div class="field-group">
+          <label for="filter-year-min">Год от</label>
+          <input id="filter-year-min" type="number" min="0" placeholder="2000" />
+        </div>
+        <div class="field-group">
+          <label for="filter-year-max">Год до</label>
+          <input id="filter-year-max" type="number" min="0" placeholder="2025" />
+        </div>
+      </div>
+      <div class="action-row">
+        <button id="clear-filters" class="btn outline">Сбросить фильтры</button>
+        <p id="count-text" class="status"></p>
+      </div>
+    </section>
+
+    <section class="card list-card">
+      <h2>Коллекция книг</h2>
+      <div class="table-wrap">
+        <table id="books-table">
+          <thead>
+            <tr>
+              <th>Название</th>
+              <th>Автор</th>
+              <th>Год</th>
+              <th>ISBN</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p id="empty-message">Пока нет книг. Добавьте первую книгу на странице <strong>add.html</strong>.</p>
+    </section>
+
+    <section class="card slots-card">
+      <h2>Готовые места для новых книг</h2>
+      <div class="slot-grid" id="slot-grid">
+        <article class="slot-card">
+          <div class="slot-label">Слот 1</div>
+          <div class="slot-title">Пустое место</div>
+          <div class="slot-meta">Название / Автор / Год</div>
+        </article>
+        <article class="slot-card">
+          <div class="slot-label">Слот 2</div>
+          <div class="slot-title">Пустое место</div>
+          <div class="slot-meta">Название / Автор / Год</div>
+        </article>
+        <article class="slot-card">
+          <div class="slot-label">Слот 3</div>
+          <div class="slot-title">Пустое место</div>
+          <div class="slot-meta">Название / Автор / Год</div>
+        </article>
+        <article class="slot-card">
+          <div class="slot-label">Слот 4</div>
+          <div class="slot-title">Пустое место</div>
+          <div class="slot-meta">Название / Автор / Год</div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <script src="index.js"></script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Авторизация - Библиотека</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1>Вход и регистрация</h1>
+      <p>Создайте учётную запись или войдите, чтобы работать с библиотекой.</p>
+    </div>
+  </header>
+  <main class="container">
+    <div class="disabled-banner">
+      <p>Вход и регистрация временно отключены — вы можете продолжить работу с библиотекой без авторизации.</p>
+    </div>
+
+    <section class="card auth-card">
+      <div class="auth-tabs">
+        <button class="tab active" data-target="login-panel" disabled>Вход</button>
+        <button class="tab" data-target="register-panel" disabled>Регистрация</button>
+      </div>
+
+      <div id="login-panel" class="auth-panel active">
+        <form id="login-form">
+          <div class="field-group">
+            <label for="login-email">Email</label>
+            <input id="login-email" name="email" type="email" required disabled />
+          </div>
+          <div class="field-group">
+            <label for="login-password">Пароль</label>
+            <input id="login-password" name="password" type="password" required disabled />
+          </div>
+          <button type="submit" class="btn" disabled>Войти</button>
+        </form>
+      </div>
+
+      <div id="register-panel" class="auth-panel">
+        <form id="register-form">
+          <div class="field-group">
+            <label for="register-email">Email</label>
+            <input id="register-email" name="email" type="email" required disabled />
+          </div>
+          <div class="field-group">
+            <label for="register-password">Пароль</label>
+            <input id="register-password" name="password" type="password" required minlength="6" disabled />
+          </div>
+          <div class="field-group">
+            <label for="register-password-confirm">Подтвердите пароль</label>
+            <input id="register-password-confirm" name="passwordConfirm" type="password" required minlength="6" disabled />
+          </div>
+          <button type="submit" class="btn" disabled>Зарегистрироваться</button>
+        </form>
+      </div>
+
+      <p id="auth-status" class="status"></p>
+      <p class="small-link"><a href="index.html">Перейти в библиотеку</a></p>
+    </section>
+  </main>
+
+  <script src="auth.js"></script>
+</body>
+</html>

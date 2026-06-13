@@ -1,0 +1,25 @@
+# Node modules
+node_modules/
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# VS Code
+.vscode/
+
+# logs
+logs/
+*.log
+
+# build
+dist/
+build/
+
+# npm
+package-lock.json
+
+# environment
+.env
