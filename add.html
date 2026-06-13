@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Добавить книгу - Books Today</title>
-  <link rel="stylesheet" href="styles.css?v=20260613-3" />
+  <link rel="stylesheet" href="styles.css?v=20260613-4" />
 </head>
 <body>
   <header class="site-header">
@@ -75,6 +75,7 @@
               <option value="pdf">PDF</option>
               <option value="mobi">MOBI</option>
               <option value="azw3">AZW3</option>
+              <option value="txt">TXT</option>
             </select>
           </div>
           <div class="field-group">
@@ -85,8 +86,30 @@
 
         <div class="field-group">
           <label for="bookFile">Или загрузить файл книги</label>
-          <input id="bookFile" name="bookFile" type="file" accept=".epub,.fb2,.pdf,.mobi,.azw3" />
+          <input id="bookFile" name="bookFile" type="file" accept=".epub,.fb2,.pdf,.mobi,.azw3,.txt" />
         </div>
+
+        <section class="convert-panel">
+          <label class="check-row">
+            <input id="autoConvert" name="autoConvert" type="checkbox" />
+            <span>Автоматически создать EPUB, MOBI и TXT</span>
+          </label>
+          <div class="format-options" aria-label="Форматы автоконвертации">
+            <label class="check-row">
+              <input name="convertFormats" type="checkbox" value="epub" checked />
+              <span>EPUB</span>
+            </label>
+            <label class="check-row">
+              <input name="convertFormats" type="checkbox" value="mobi" checked />
+              <span>MOBI</span>
+            </label>
+            <label class="check-row">
+              <input name="convertFormats" type="checkbox" value="txt" checked />
+              <span>TXT</span>
+            </label>
+          </div>
+          <p class="muted">Для автоконвертации нужен бесплатный converter-server на Render. TXT можно читать на телефоне, но EPUB удобнее для книг.</p>
+        </section>
 
         <button type="submit" class="btn">Сохранить книгу</button>
       </form>
@@ -95,8 +118,9 @@
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="supabase-config.js?v=20260613-3"></script>
-  <script src="supabase-api.js?v=20260613-3"></script>
-  <script src="script.js?v=20260613-3"></script>
+  <script src="supabase-config.js?v=20260613-4"></script>
+  <script src="converter-config.js?v=20260613-4"></script>
+  <script src="supabase-api.js?v=20260613-4"></script>
+  <script src="script.js?v=20260613-4"></script>
 </body>
 </html>

@@ -21,6 +21,50 @@ function showStatus(message, isError = false) {
   statusText.style.color = isError ? "#b91c1c" : "#0f766e";
 }
 
+function getConverterApiUrl() {
+  const config = window.BOOKS_CONVERTER_CONFIG || {};
+  return String(config.apiUrl || "").replace(/\/$/, "");
+}
+
+function base64ToBlob(base64, mimeType) {
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+
+  for (let index = 0; index < binary.length; index += 1) {
+    bytes[index] = binary.charCodeAt(index);
+  }
+
+  return new Blob([bytes], { type: mimeType || "application/octet-stream" });
+}
+
+async function convertBookFile(file, formats) {
+  const apiUrl = getConverterApiUrl();
+
+  if (!apiUrl) {
+    throw new Error("Адрес converter-server ещё не указан в converter-config.js.");
+  }
+
+  const payload = new FormData();
+  payload.append("book", file);
+  payload.append("formats", JSON.stringify(formats));
+
+  const response = await fetch(`${apiUrl}/convert`, {
+    method: "POST",
+    body: payload,
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(errorText || "Конвертер не смог обработать файл.");
+  }
+
+  return response.json();
+}
+
+function getSelectedConvertFormats(formData) {
+  return formData.getAll("convertFormats").map((format) => String(format).toLowerCase());
+}
+
 form.addEventListener("submit", (event) => {
   event.preventDefault();
   saveBook().catch((error) => {
@@ -35,6 +79,8 @@ async function saveBook() {
   const coverFile = formData.get("coverFile");
   const bookFile = formData.get("bookFile");
   const format = formData.get("format");
+  const shouldConvert = formData.get("autoConvert") === "on";
+  const convertFormats = getSelectedConvertFormats(formData);
 
   showStatus("Сохраняю книгу...");
 
@@ -42,11 +88,40 @@ async function saveBook() {
     ? await uploadSupabaseFile("book-covers", "covers", coverFile, "jpg")
     : "";
 
-  const uploadedBookUrl = bookFile && bookFile.size
+  let uploadedBookUrl = "";
+  let convertedFiles = [];
+
+  if (shouldConvert && bookFile && bookFile.size) {
+    if (!hasSupabase()) {
+      throw new Error("Автоконвертация сохраняет результаты в Supabase. Сначала подключите базу.");
+    }
+
+    if (!convertFormats.length) {
+      throw new Error("Выберите хотя бы один формат для конвертации.");
+    }
+
+    showStatus("Конвертирую книгу в EPUB, MOBI и TXT...");
+    const conversion = await convertBookFile(bookFile, convertFormats);
+
+    showStatus("Загружаю сконвертированные файлы в Supabase...");
+    convertedFiles = await Promise.all(
+      conversion.files.map(async (convertedFile) => {
+        const blob = base64ToBlob(convertedFile.base64, convertedFile.mimeType);
+        const url = await uploadSupabaseFile("book-files", convertedFile.format, blob, convertedFile.format);
+        return {
+          format: convertedFile.format,
+          url,
+        };
+      }),
+    );
+  } else {
+    uploadedBookUrl = bookFile && bookFile.size
     ? await uploadSupabaseFile("book-files", format, bookFile, format)
     : "";
+  }
 
   const fileUrl = uploadedBookUrl || manualFileUrl;
+  const bookFiles = convertedFiles.length ? convertedFiles : [{ format, url: fileUrl }];
 
   const newBook = {
     id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
@@ -56,11 +131,11 @@ async function saveBook() {
     isbn: formData.get("isbn").trim(),
     description: formData.get("description").trim(),
     coverUrl: uploadedCoverUrl || formData.get("coverUrl").trim(),
-    files: [{ format, url: fileUrl }],
+    files: bookFiles,
     createdAt: new Date().toISOString(),
   };
 
-  if (!newBook.title || !newBook.author || !fileUrl) {
+  if (!newBook.title || !newBook.author || (!fileUrl && !convertedFiles.length)) {
     showStatus("Заполните название, автора и добавьте ссылку или файл книги.", true);
     return;
   }

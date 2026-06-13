@@ -116,6 +116,36 @@ header p {
   font-weight: 800;
 }
 
+.convert-panel {
+  margin: 4px 0 20px;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 8px;
+  padding: 16px;
+  background: #f8fafc;
+}
+
+.check-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  color: #334155;
+  font-weight: 750;
+}
+
+.check-row input {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+}
+
+.format-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 14px 0 10px;
+}
+
 .toolbar {
   display: grid;
   grid-template-columns: minmax(220px, 2fr) minmax(130px, 1fr) minmax(110px, 0.7fr) minmax(110px, 0.7fr) auto;

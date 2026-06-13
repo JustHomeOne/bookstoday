@@ -12,7 +12,7 @@ create table if not exists public.books (
 create table if not exists public.book_files (
   id uuid primary key default gen_random_uuid(),
   book_id uuid not null references public.books(id) on delete cascade,
-  format text not null check (format in ('epub', 'fb2', 'pdf', 'mobi', 'azw3')),
+  format text not null check (format in ('epub', 'fb2', 'pdf', 'mobi', 'azw3', 'txt')),
   file_url text not null,
   created_at timestamptz not null default now()
 );
