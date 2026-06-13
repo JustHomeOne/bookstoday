@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Добавить книгу - Books Today</title>
-  <link rel="stylesheet" href="styles.css?v=20260613-2" />
+  <link rel="stylesheet" href="styles.css?v=20260613-3" />
 </head>
 <body>
   <header class="site-header">
@@ -15,6 +15,7 @@
         <p>Сейчас книга сохраняется в браузере. После подключения Supabase эта же форма будет отправлять данные в общую базу.</p>
       </div>
       <nav class="top-actions" aria-label="Основная навигация">
+        <a class="btn outline light" href="convert.html">Конвертер</a>
         <a class="btn outline light" href="index.html">Каталог</a>
       </nav>
     </div>
@@ -22,6 +23,12 @@
 
   <main class="container narrow">
     <section class="card">
+      <div class="notice">
+        <strong>Нужен другой формат?</strong>
+        Сначала конвертируйте книгу в EPUB, FB2 или PDF, затем загрузите готовый файл здесь.
+        <a href="convert.html">Открыть конвертер</a>
+      </div>
+
       <form id="book-form">
         <div class="field-group">
           <label for="title">Название</label>
@@ -88,8 +95,8 @@
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="supabase-config.js?v=20260613-2"></script>
-  <script src="supabase-api.js?v=20260613-2"></script>
-  <script src="script.js?v=20260613-2"></script>
+  <script src="supabase-config.js?v=20260613-3"></script>
+  <script src="supabase-api.js?v=20260613-3"></script>
+  <script src="script.js?v=20260613-3"></script>
 </body>
 </html>

@@ -96,6 +96,26 @@ header p {
   margin-bottom: 24px;
 }
 
+.notice {
+  margin-bottom: 22px;
+  border: 1px solid #bae6fd;
+  border-radius: 8px;
+  padding: 14px 16px;
+  background: #f0f9ff;
+  color: #0f172a;
+  line-height: 1.6;
+}
+
+.notice strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.notice a {
+  color: #0369a1;
+  font-weight: 800;
+}
+
 .toolbar {
   display: grid;
   grid-template-columns: minmax(220px, 2fr) minmax(130px, 1fr) minmax(110px, 0.7fr) minmax(110px, 0.7fr) auto;
@@ -328,6 +348,43 @@ textarea:focus {
 
 .download-card {
   text-align: center;
+}
+
+.converter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.converter-card {
+  display: flex;
+  min-height: 210px;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 18px;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 8px;
+  padding: 20px;
+  background: #ffffff;
+}
+
+.converter-card h2 {
+  margin: 0 0 8px;
+  font-size: 1.18rem;
+}
+
+.converter-card p {
+  margin: 0;
+  color: #64748b;
+  line-height: 1.6;
+}
+
+.steps {
+  margin: 0;
+  padding-left: 20px;
+  color: #475569;
+  line-height: 1.8;
 }
 
 .ad-box {
