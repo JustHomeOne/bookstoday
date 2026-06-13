@@ -3,30 +3,36 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Добавление книги</title>
+  <title>Добавить книгу - Books Today</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <header>
-    <div class="container">
-      <h1>Добавление книги</h1>
-      <p>Отдельная страница для создания новой книги. Данные сохраняются локально.</p>
-      <p class="small-link"><a href="index.html">Посмотреть список книг</a></p>
+  <header class="site-header">
+    <div class="container header-grid">
+      <div>
+        <p class="eyebrow">Админ-панель</p>
+        <h1>Добавить книгу</h1>
+        <p>Сейчас книга сохраняется в браузере. После подключения Supabase эта же форма будет отправлять данные в общую базу.</p>
+      </div>
+      <nav class="top-actions" aria-label="Основная навигация">
+        <a class="btn outline light" href="index.html">Каталог</a>
+      </nav>
     </div>
   </header>
 
-  <main class="container">
+  <main class="container narrow">
     <section class="card">
-      <h2>Добавить новую книгу</h2>
       <form id="book-form">
         <div class="field-group">
           <label for="title">Название</label>
           <input id="title" name="title" type="text" required />
         </div>
+
         <div class="field-group">
           <label for="author">Автор</label>
           <input id="author" name="author" type="text" required />
         </div>
+
         <div class="field-row">
           <div class="field-group">
             <label for="year">Год</label>
@@ -37,12 +43,53 @@
             <input id="isbn" name="isbn" type="text" />
           </div>
         </div>
-        <button type="submit" class="btn">Добавить книгу</button>
+
+        <div class="field-group">
+          <label for="description">Описание</label>
+          <textarea id="description" name="description" rows="4" placeholder="Краткое описание книги"></textarea>
+        </div>
+
+        <div class="field-group">
+          <label for="coverUrl">Ссылка на обложку</label>
+          <input id="coverUrl" name="coverUrl" type="url" placeholder="https://..." />
+        </div>
+
+        <div class="field-group">
+          <label for="coverFile">Или загрузить обложку</label>
+          <input id="coverFile" name="coverFile" type="file" accept="image/*" />
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            <label for="format">Формат файла</label>
+            <select id="format" name="format" required>
+              <option value="epub">EPUB</option>
+              <option value="fb2">FB2</option>
+              <option value="pdf">PDF</option>
+              <option value="mobi">MOBI</option>
+              <option value="azw3">AZW3</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label for="fileUrl">Ссылка на файл книги</label>
+            <input id="fileUrl" name="fileUrl" type="url" placeholder="https://..." />
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label for="bookFile">Или загрузить файл книги</label>
+          <input id="bookFile" name="bookFile" type="file" accept=".epub,.fb2,.pdf,.mobi,.azw3" />
+        </div>
+
+        <button type="submit" class="btn">Сохранить книгу</button>
       </form>
       <p id="status" class="status"></p>
     </section>
   </main>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="supabase-api.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

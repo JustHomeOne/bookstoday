@@ -3,88 +3,71 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Books — Главная библиотека</title>
+  <title>Books Today - онлайн библиотека</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <header>
-    <div class="container">
-      <h1>Books</h1>
-      <p>Главная страница библиотеки с поиском, фильтрами и заранее подготовленными слотами для книг.</p>
+  <header class="site-header">
+    <div class="container header-grid">
+      <div>
+        <p class="eyebrow">Онлайн библиотека</p>
+        <h1>Books Today</h1>
+        <p>Каталог книг с обложками, поиском, форматами для электронных книг и страницей скачивания через рекламу.</p>
+      </div>
+      <nav class="top-actions" aria-label="Основная навигация">
+        <a class="btn outline light" href="auth.html">Вход</a>
+        <a class="btn light" href="add.html">Добавить книгу</a>
+      </nav>
     </div>
   </header>
 
   <main class="container">
-    <section class="card search-card">
-      <div class="search-grid">
-        <div class="field-group">
-          <label for="search-query">Поиск по названию или автору</label>
-          <input id="search-query" type="search" placeholder="Введите название или автора" />
-        </div>
-        <div class="field-group">
-          <label for="filter-author">Фильтр по автору</label>
-          <input id="filter-author" type="search" placeholder="Введите автора" />
-        </div>
-        <div class="field-group">
-          <label for="filter-year-min">Год от</label>
-          <input id="filter-year-min" type="number" min="0" placeholder="2000" />
-        </div>
-        <div class="field-group">
-          <label for="filter-year-max">Год до</label>
-          <input id="filter-year-max" type="number" min="0" placeholder="2025" />
-        </div>
+    <section class="toolbar">
+      <div class="field-group">
+        <label for="search-query">Поиск</label>
+        <input id="search-query" type="search" placeholder="Название, автор, ISBN" />
       </div>
-      <div class="action-row">
-        <button id="clear-filters" class="btn outline">Сбросить фильтры</button>
-        <p id="count-text" class="status"></p>
+      <div class="field-group">
+        <label for="filter-format">Формат</label>
+        <select id="filter-format">
+          <option value="">Все форматы</option>
+          <option value="epub">EPUB</option>
+          <option value="fb2">FB2</option>
+          <option value="pdf">PDF</option>
+          <option value="mobi">MOBI</option>
+          <option value="azw3">AZW3</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label for="filter-year-min">Год от</label>
+        <input id="filter-year-min" type="number" min="0" placeholder="2000" />
+      </div>
+      <div class="field-group">
+        <label for="filter-year-max">Год до</label>
+        <input id="filter-year-max" type="number" min="0" placeholder="2026" />
+      </div>
+      <button id="clear-filters" class="btn outline" type="button">Сбросить</button>
+    </section>
+
+    <section class="section-heading">
+      <div>
+        <h2>Каталог книг</h2>
+        <p id="count-text">Загрузка списка...</p>
       </div>
     </section>
 
-    <section class="card list-card">
-      <h2>Коллекция книг</h2>
-      <div class="table-wrap">
-        <table id="books-table">
-          <thead>
-            <tr>
-              <th>Название</th>
-              <th>Автор</th>
-              <th>Год</th>
-              <th>ISBN</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-      <p id="empty-message">Пока нет книг. Добавьте первую книгу на странице <strong>add.html</strong>.</p>
-    </section>
+    <section id="books-grid" class="books-grid" aria-live="polite"></section>
 
-    <section class="card slots-card">
-      <h2>Готовые места для новых книг</h2>
-      <div class="slot-grid" id="slot-grid">
-        <article class="slot-card">
-          <div class="slot-label">Слот 1</div>
-          <div class="slot-title">Пустое место</div>
-          <div class="slot-meta">Название / Автор / Год</div>
-        </article>
-        <article class="slot-card">
-          <div class="slot-label">Слот 2</div>
-          <div class="slot-title">Пустое место</div>
-          <div class="slot-meta">Название / Автор / Год</div>
-        </article>
-        <article class="slot-card">
-          <div class="slot-label">Слот 3</div>
-          <div class="slot-title">Пустое место</div>
-          <div class="slot-meta">Название / Автор / Год</div>
-        </article>
-        <article class="slot-card">
-          <div class="slot-label">Слот 4</div>
-          <div class="slot-title">Пустое место</div>
-          <div class="slot-meta">Название / Автор / Год</div>
-        </article>
-      </div>
+    <section id="empty-message" class="empty-state">
+      <h2>Пока нет книг</h2>
+      <p>Добавьте первую книгу, файл и обложку. Позже эти данные будут храниться в Supabase и станут общими для всех устройств.</p>
+      <a class="btn" href="add.html">Добавить книгу</a>
     </section>
   </main>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="supabase-api.js"></script>
   <script src="index.js"></script>
 </body>
 </html>
