@@ -50,6 +50,12 @@ function getInputExtension(fileName) {
 function runCalibre(inputPath, outputPath) {
   return new Promise((resolve, reject) => {
     const child = spawn("ebook-convert", [inputPath, outputPath], {
+      env: {
+        ...process.env,
+        QT_QPA_PLATFORM: "offscreen",
+        QTWEBENGINE_CHROMIUM_FLAGS: "--no-sandbox --disable-gpu",
+        XDG_RUNTIME_DIR: process.env.XDG_RUNTIME_DIR || "/tmp/runtime-root",
+      },
       stdio: ["ignore", "pipe", "pipe"],
     });
 
@@ -89,6 +95,10 @@ app.post("/convert", upload.single("book"), async (request, response) => {
 
   try {
     await fs.mkdir(tempDir, { recursive: true });
+    await fs.mkdir(process.env.XDG_RUNTIME_DIR || "/tmp/runtime-root", {
+      recursive: true,
+      mode: 0o700,
+    });
     await fs.writeFile(inputPath, request.file.buffer);
 
     const files = [];
