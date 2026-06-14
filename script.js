@@ -99,6 +99,31 @@ async function saveBook() {
     throw new Error("Загрузка книг и автоконвертация требуют подключённый Supabase.");
   }
 
+  const bookTitle = formData.get("title").trim();
+  const bookAuthor = formData.get("author").trim();
+  const bookIsbn = formData.get("isbn").trim();
+
+  if (!bookTitle || !bookAuthor) {
+    showStatus("Заполните название и автора.", true);
+    return;
+  }
+
+  showStatus("Проверяю, нет ли такой книги в каталоге...");
+  const duplicateBook = await findDuplicateBook({
+    title: bookTitle,
+    author: bookAuthor,
+    isbn: bookIsbn,
+  });
+
+  if (duplicateBook) {
+    const duplicateReason = bookIsbn && duplicateBook.isbn
+      ? `ISBN ${duplicateBook.isbn}`
+      : `${duplicateBook.title} — ${duplicateBook.author}`;
+
+    showStatus(`Такая книга уже есть в каталоге: ${duplicateReason}. Сначала удалите старую запись из базы, если хотите загрузить её заново.`, true);
+    return;
+  }
+
   const convertFormats = getConvertFormats(format);
 
   showStatus("Загружаю оригинальный файл в Supabase...");
@@ -121,19 +146,14 @@ async function saveBook() {
 
   const newBook = {
     id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
-    title: formData.get("title").trim(),
-    author: formData.get("author").trim(),
+    title: bookTitle,
+    author: bookAuthor,
     year: formData.get("year").trim(),
-    isbn: formData.get("isbn").trim(),
+    isbn: bookIsbn,
     description: formData.get("description").trim(),
     files: [{ format, url: originalUrl }, ...convertedFiles],
     createdAt: new Date().toISOString(),
   };
-
-  if (!newBook.title || !newBook.author) {
-    showStatus("Заполните название и автора.", true);
-    return;
-  }
 
   await createSupabaseBook(newBook);
   showStatus("Книга сохранена и доступна в EPUB, MOBI и TXT.");

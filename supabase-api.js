@@ -41,7 +41,14 @@ async function fetchSupabaseBooks() {
 }
 
 function normalizeBookField(value) {
-  return String(value || "").trim().toLowerCase();
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, " ");
+}
+
+function normalizeIsbn(value) {
+  return normalizeBookField(value).replace(/[^0-9x]/g, "");
 }
 
 async function findDuplicateBook({ title, author, isbn }) {
@@ -49,21 +56,21 @@ async function findDuplicateBook({ title, author, isbn }) {
 
   const normalizedTitle = normalizeBookField(title);
   const normalizedAuthor = normalizeBookField(author);
-  const normalizedIsbn = normalizeBookField(isbn);
+  const normalizedIsbn = normalizeIsbn(isbn);
+
+  const { data, error } = await booksDb
+    .from("books")
+    .select("id,title,author,isbn");
+
+  if (error) {
+    throw error;
+  }
 
   if (normalizedIsbn) {
-    const { data, error } = await booksDb
-      .from("books")
-      .select("id,title,author,isbn")
-      .ilike("isbn", normalizedIsbn)
-      .limit(1);
+    const byIsbn = data.find((book) => normalizeIsbn(book.isbn) === normalizedIsbn);
 
-    if (error) {
-      throw error;
-    }
-
-    if (data.length) {
-      return data[0];
+    if (byIsbn) {
+      return byIsbn;
     }
   }
 
@@ -71,18 +78,10 @@ async function findDuplicateBook({ title, author, isbn }) {
     return null;
   }
 
-  const { data, error } = await booksDb
-    .from("books")
-    .select("id,title,author,isbn")
-    .ilike("title", normalizedTitle)
-    .ilike("author", normalizedAuthor)
-    .limit(1);
-
-  if (error) {
-    throw error;
-  }
-
-  return data[0] || null;
+  return data.find((book) => (
+    normalizeBookField(book.title) === normalizedTitle
+    && normalizeBookField(book.author) === normalizedAuthor
+  )) || null;
 }
 
 function getFileExtension(file, fallback) {
