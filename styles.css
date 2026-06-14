@@ -277,27 +277,19 @@ textarea:focus {
 }
 
 .book-card {
-  display: grid;
-  grid-template-columns: 118px 1fr;
-  min-height: 238px;
+  display: flex;
+  min-height: 220px;
   overflow: hidden;
-}
-
-.book-cover {
-  width: 118px;
-  height: 100%;
-  min-height: 238px;
-  object-fit: cover;
-  background: #e2e8f0;
 }
 
 .book-content {
   display: flex;
   min-width: 0;
+  width: 100%;
   flex-direction: column;
   justify-content: space-between;
   gap: 14px;
-  padding: 16px;
+  padding: 20px;
 }
 
 .book-content h3 {
@@ -350,6 +342,34 @@ textarea:focus {
 
 .format-link:hover {
   background: #dbeafe;
+}
+
+.read-link {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.read-link:hover {
+  background: #d1fae5;
+}
+
+.reader-container {
+  width: min(900px, calc(100% - 32px));
+}
+
+.reader-card {
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 8px;
+  padding: clamp(18px, 4vw, 42px);
+  background: #fff;
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.09);
+}
+
+.reader-card pre {
+  margin: 0;
+  white-space: pre-wrap;
+  color: #1e293b;
+  font: 1.05rem/1.85 Georgia, "Times New Roman", serif;
 }
 
 .empty-state {
@@ -531,10 +551,6 @@ textarea:focus {
   }
 
   .book-card {
-    grid-template-columns: 96px 1fr;
-  }
-
-  .book-cover {
-    width: 96px;
+    min-height: 0;
   }
 }

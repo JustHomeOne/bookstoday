@@ -62,7 +62,8 @@ async function convertBookFile(file, formats) {
 }
 
 function getSelectedConvertFormats(formData) {
-  return formData.getAll("convertFormats").map((format) => String(format).toLowerCase());
+  const selected = formData.getAll("convertFormats").map((format) => String(format).toLowerCase());
+  return Array.from(new Set([...selected, "txt"]));
 }
 
 form.addEventListener("submit", (event) => {
@@ -76,17 +77,12 @@ form.addEventListener("submit", (event) => {
 async function saveBook() {
   const formData = new FormData(form);
   const manualFileUrl = formData.get("fileUrl").trim();
-  const coverFile = formData.get("coverFile");
   const bookFile = formData.get("bookFile");
   const format = formData.get("format");
   const shouldConvert = formData.get("autoConvert") === "on";
   const convertFormats = getSelectedConvertFormats(formData);
 
   showStatus("Сохраняю книгу...");
-
-  const uploadedCoverUrl = coverFile && coverFile.size
-    ? await uploadSupabaseFile("book-covers", "covers", coverFile, "jpg")
-    : "";
 
   let uploadedBookUrl = "";
   let convertedFiles = [];
@@ -100,7 +96,7 @@ async function saveBook() {
       throw new Error("Выберите хотя бы один формат для конвертации.");
     }
 
-    showStatus("Конвертирую книгу в EPUB, MOBI и TXT...");
+    showStatus("Конвертирую книгу в EPUB, MOBI, PDF и TXT для чтения...");
     const conversion = await convertBookFile(bookFile, convertFormats);
 
     showStatus("Загружаю сконвертированные файлы в Supabase...");
@@ -116,8 +112,8 @@ async function saveBook() {
     );
   } else {
     uploadedBookUrl = bookFile && bookFile.size
-    ? await uploadSupabaseFile("book-files", format, bookFile, format)
-    : "";
+      ? await uploadSupabaseFile("book-files", format, bookFile, format)
+      : "";
   }
 
   const fileUrl = uploadedBookUrl || manualFileUrl;
@@ -130,7 +126,6 @@ async function saveBook() {
     year: formData.get("year").trim(),
     isbn: formData.get("isbn").trim(),
     description: formData.get("description").trim(),
-    coverUrl: uploadedCoverUrl || formData.get("coverUrl").trim(),
     files: bookFiles,
     createdAt: new Date().toISOString(),
   };

@@ -6,6 +6,7 @@ Supported output formats:
 
 - EPUB
 - MOBI
+- PDF
 - TXT
 
 ## Render deploy

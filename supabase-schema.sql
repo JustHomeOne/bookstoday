@@ -5,7 +5,6 @@ create table if not exists public.books (
   year integer,
   isbn text,
   description text,
-  cover_url text,
   created_at timestamptz not null default now()
 );
 
@@ -41,22 +40,8 @@ create policy "Temporary public book file inserts"
   with check (true);
 
 insert into storage.buckets (id, name, public)
-values ('book-covers', 'book-covers', true)
-on conflict (id) do update set public = excluded.public;
-
-insert into storage.buckets (id, name, public)
 values ('book-files', 'book-files', true)
 on conflict (id) do update set public = excluded.public;
-
-drop policy if exists "Anyone can read book covers" on storage.objects;
-create policy "Anyone can read book covers"
-  on storage.objects for select
-  using (bucket_id = 'book-covers');
-
-drop policy if exists "Anyone can upload book covers" on storage.objects;
-create policy "Anyone can upload book covers"
-  on storage.objects for insert
-  with check (bucket_id = 'book-covers');
 
 drop policy if exists "Anyone can read book files" on storage.objects;
 create policy "Anyone can read book files"

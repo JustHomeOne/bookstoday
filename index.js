@@ -71,6 +71,31 @@ function createDownloadUrl(book, file) {
   return `download.html?${params.toString()}`;
 }
 
+function createReadUrl(book, file) {
+  const params = new URLSearchParams({
+    title: book.title || "Книга",
+    file: file.url,
+  });
+
+  return `read.html?${params.toString()}`;
+}
+
+function renderFormatButton(book, file) {
+  if (file.format === "txt") {
+    return `
+      <a class="format-link read-link" href="${escapeHtml(createReadUrl(book, file))}">
+        Читать
+      </a>
+    `;
+  }
+
+  return `
+    <a class="format-link" href="${escapeHtml(createDownloadUrl(book, file))}">
+      Скачать ${escapeHtml(file.format.toUpperCase())}
+    </a>
+  `;
+}
+
 function renderBooks(books) {
   booksGrid.innerHTML = "";
 
@@ -85,20 +110,14 @@ function renderBooks(books) {
 
   books.forEach((book) => {
     const formats = getBookFormats(book);
-    const cover = book.coverUrl || "https://placehold.co/360x520/e2e8f0/334155?text=Books+Today";
     const card = document.createElement("article");
     card.className = "book-card";
 
     const formatButtons = formats.length
-      ? formats.map((file) => `
-          <a class="format-link" href="${escapeHtml(createDownloadUrl(book, file))}">
-            Скачать ${escapeHtml(file.format.toUpperCase())}
-          </a>
-        `).join("")
+      ? formats.map((file) => renderFormatButton(book, file)).join("")
       : `<span class="muted">Файлы скоро появятся</span>`;
 
     card.innerHTML = `
-      <img class="book-cover" src="${escapeHtml(cover)}" alt="Обложка книги ${escapeHtml(book.title)}" loading="lazy" />
       <div class="book-content">
         <div>
           <h3>${escapeHtml(book.title)}</h3>

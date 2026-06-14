@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Добавить книгу - Books Today</title>
-  <link rel="stylesheet" href="styles.css?v=20260613-4" />
+  <link rel="stylesheet" href="styles.css?v=20260614-1" />
 </head>
 <body>
   <header class="site-header">
@@ -12,7 +12,7 @@
       <div>
         <p class="eyebrow">Админ-панель</p>
         <h1>Добавить книгу</h1>
-        <p>Сейчас книга сохраняется в браузере. После подключения Supabase эта же форма будет отправлять данные в общую базу.</p>
+        <p>Добавьте данные книги и ссылку или файл. После подключения Supabase книга будет видна всем пользователям.</p>
       </div>
       <nav class="top-actions" aria-label="Основная навигация">
         <a class="btn outline light" href="convert.html">Конвертер</a>
@@ -24,9 +24,8 @@
   <main class="container narrow">
     <section class="card">
       <div class="notice">
-        <strong>Нужен другой формат?</strong>
-        Сначала конвертируйте книгу в EPUB, FB2 или PDF, затем загрузите готовый файл здесь.
-        <a href="convert.html">Открыть конвертер</a>
+        <strong>Файлы книги</strong>
+        Можно добавить прямую ссылку на файл или загрузить файл книги. Обложки на сайте не используются.
       </div>
 
       <form id="book-form">
@@ -56,19 +55,9 @@
           <textarea id="description" name="description" rows="4" placeholder="Краткое описание книги"></textarea>
         </div>
 
-        <div class="field-group">
-          <label for="coverUrl">Ссылка на обложку</label>
-          <input id="coverUrl" name="coverUrl" type="url" placeholder="https://..." />
-        </div>
-
-        <div class="field-group">
-          <label for="coverFile">Или загрузить обложку</label>
-          <input id="coverFile" name="coverFile" type="file" accept="image/*" />
-        </div>
-
         <div class="field-row">
           <div class="field-group">
-            <label for="format">Формат файла</label>
+            <label for="format">Формат исходного файла</label>
             <select id="format" name="format" required>
               <option value="epub">EPUB</option>
               <option value="fb2">FB2</option>
@@ -92,7 +81,7 @@
         <section class="convert-panel">
           <label class="check-row">
             <input id="autoConvert" name="autoConvert" type="checkbox" />
-            <span>Автоматически создать EPUB, MOBI и TXT</span>
+            <span>Автоматически создать EPUB, MOBI, PDF и текст для чтения</span>
           </label>
           <div class="format-options" aria-label="Форматы автоконвертации">
             <label class="check-row">
@@ -104,11 +93,11 @@
               <span>MOBI</span>
             </label>
             <label class="check-row">
-              <input name="convertFormats" type="checkbox" value="txt" checked />
-              <span>TXT</span>
+              <input name="convertFormats" type="checkbox" value="pdf" checked />
+              <span>PDF</span>
             </label>
           </div>
-          <p class="muted">Для автоконвертации нужен бесплатный converter-server на Render. TXT можно читать на телефоне, но EPUB удобнее для книг.</p>
+          <p class="muted">TXT будет создан автоматически для чтения прямо на сайте, а не как основная кнопка скачивания.</p>
         </section>
 
         <button type="submit" class="btn">Сохранить книгу</button>
@@ -118,9 +107,9 @@
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="supabase-config.js?v=20260613-4"></script>
-  <script src="converter-config.js?v=20260613-4"></script>
-  <script src="supabase-api.js?v=20260613-4"></script>
-  <script src="script.js?v=20260613-4"></script>
+  <script src="supabase-config.js?v=20260614-1"></script>
+  <script src="converter-config.js?v=20260614-1"></script>
+  <script src="supabase-api.js?v=20260614-1"></script>
+  <script src="script.js?v=20260614-1"></script>
 </body>
 </html>

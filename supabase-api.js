@@ -17,7 +17,6 @@ function toPublicBook(row) {
     year: row.year || "",
     isbn: row.isbn || "",
     description: row.description || "",
-    coverUrl: row.cover_url || "",
     files: (row.book_files || []).map((file) => ({
       format: file.format,
       url: file.file_url,
@@ -31,7 +30,7 @@ async function fetchSupabaseBooks() {
 
   const { data, error } = await booksDb
     .from("books")
-    .select("id,title,author,year,isbn,description,cover_url,created_at,book_files(format,file_url)")
+    .select("id,title,author,year,isbn,description,created_at,book_files(format,file_url)")
     .order("created_at", { ascending: false });
 
   if (error) {
@@ -75,7 +74,6 @@ async function createSupabaseBook(book) {
       year: book.year ? Number(book.year) : null,
       isbn: book.isbn || null,
       description: book.description || null,
-      cover_url: book.coverUrl || null,
     })
     .select("id")
     .single();
