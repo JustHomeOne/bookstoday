@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Читать книгу - Books Today</title>
-  <link rel="stylesheet" href="styles.css?v=20260614-8" />
+  <link rel="stylesheet" href="styles.css?v=20260614-9" />
 </head>
 <body>
   <header class="site-header compact reader-header">
@@ -12,7 +12,7 @@
       <div>
         <p class="eyebrow">Чтение онлайн</p>
         <h1 id="reader-title">Книга</h1>
-        <p>Текстовая версия без скачивания и лишних отвлечений.</p>
+        <p>Текстовая версия с главами, удобной навигацией и сохранением места чтения на этом устройстве.</p>
       </div>
       <nav class="top-actions" aria-label="Основная навигация">
         <a class="btn outline light" href="index.html">Каталог</a>
@@ -20,12 +20,31 @@
     </div>
   </header>
 
-  <main class="container reader-container">
+  <main class="container reader-layout">
+    <aside class="reader-sidebar" aria-label="Навигация по книге">
+      <label for="chapter-select">Глава</label>
+      <select id="chapter-select"></select>
+
+      <div class="reader-progress">
+        <span id="chapter-counter">Глава 1 из 1</span>
+        <div class="progress-track" aria-hidden="true">
+          <div id="progress-bar" class="progress-bar"></div>
+        </div>
+      </div>
+
+      <div class="reader-controls">
+        <button id="prev-chapter" class="btn outline" type="button">Назад</button>
+        <button id="next-chapter" class="btn" type="button">Дальше</button>
+      </div>
+    </aside>
+
     <article class="reader-card">
-      <pre id="reader-text">Загрузка текста...</pre>
+      <p id="reader-status" class="muted">Загрузка текста...</p>
+      <h2 id="chapter-title" class="chapter-title"></h2>
+      <pre id="reader-text"></pre>
     </article>
   </main>
 
-  <script src="read.js?v=20260614-8"></script>
+  <script src="read.js?v=20260614-9"></script>
 </body>
 </html>
