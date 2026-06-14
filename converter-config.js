@@ -1,3 +1,3 @@
 window.BOOKS_CONVERTER_CONFIG = {
-  apiUrl: "",
+  apiUrl: "https://bookstoday-converter.onrender.com",
 };
