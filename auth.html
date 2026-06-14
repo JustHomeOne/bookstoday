@@ -3,19 +3,26 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Авторизация - Библиотека</title>
-  <link rel="stylesheet" href="styles.css?v=20260613-4" />
+  <title>Вход - Books Today</title>
+  <link rel="stylesheet" href="styles.css?v=20260614-8" />
 </head>
 <body>
-  <header>
-    <div class="container">
-      <h1>Вход и регистрация</h1>
-      <p>Создайте учётную запись или войдите, чтобы работать с библиотекой.</p>
+  <header class="site-header compact">
+    <div class="container header-grid">
+      <div>
+        <p class="eyebrow">Аккаунт</p>
+        <h1>Вход и регистрация</h1>
+        <p>Аккаунты пока отключены. Библиотека работает без авторизации.</p>
+      </div>
+      <nav class="top-actions" aria-label="Основная навигация">
+        <a class="btn outline light" href="index.html">Каталог</a>
+      </nav>
     </div>
   </header>
-  <main class="container">
+
+  <main class="container narrow">
     <div class="disabled-banner">
-      <p>Вход и регистрация временно отключены — вы можете продолжить работу с библиотекой без авторизации.</p>
+      <p>Вход и регистрация временно отключены. Можно продолжать пользоваться библиотекой без аккаунта.</p>
     </div>
 
     <section class="card auth-card">
@@ -61,6 +68,6 @@
     </section>
   </main>
 
-  <script src="auth.js?v=20260613-4"></script>
+  <script src="auth.js?v=20260614-8"></script>
 </body>
 </html>

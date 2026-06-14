@@ -80,18 +80,25 @@ function createReadUrl(book, file) {
   return `read.html?${params.toString()}`;
 }
 
+function getFormatLabel(format) {
+  return String(format || "").toUpperCase();
+}
+
 function renderFormatButton(book, file) {
   if (file.format === "txt") {
     return `
       <a class="format-link read-link" href="${escapeHtml(createReadUrl(book, file))}">
-        Читать
+        Читать TXT
+      </a>
+      <a class="format-link" href="${escapeHtml(createDownloadUrl(book, file))}">
+        Скачать TXT
       </a>
     `;
   }
 
   return `
     <a class="format-link" href="${escapeHtml(createDownloadUrl(book, file))}">
-      Скачать ${escapeHtml(file.format.toUpperCase())}
+      Скачать ${escapeHtml(getFormatLabel(file.format))}
     </a>
   `;
 }
@@ -113,6 +120,10 @@ function renderBooks(books) {
     const card = document.createElement("article");
     card.className = "book-card";
 
+    const badges = formats.length
+      ? formats.map((file) => `<span class="format-badge">${escapeHtml(getFormatLabel(file.format))}</span>`).join("")
+      : `<span class="format-badge empty">Нет файлов</span>`;
+
     const formatButtons = formats.length
       ? formats.map((file) => renderFormatButton(book, file)).join("")
       : `<span class="muted">Файлы скоро появятся</span>`;
@@ -120,6 +131,7 @@ function renderBooks(books) {
     card.innerHTML = `
       <div class="book-content">
         <div>
+          <div class="book-topline">${badges}</div>
           <h3>${escapeHtml(book.title)}</h3>
           <p class="book-meta">${escapeHtml(book.author)}${book.year ? `, ${escapeHtml(book.year)}` : ""}</p>
           ${book.isbn ? `<p class="book-isbn">ISBN: ${escapeHtml(book.isbn)}</p>` : ""}
