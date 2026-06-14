@@ -50,6 +50,115 @@ function isChapterHeading(line) {
   ].some((word) => lower === word || lower.startsWith(`${word} `) || lower.startsWith(`${word}.`) || lower.startsWith(`${word}:`));
 }
 
+function cleanChapterTitle(title) {
+  return title
+    .trim()
+    .replace(/([А-Яа-яЁё])([IVXLCDM]+)$/i, "$1")
+    .replace(/\s{2,}/g, " ");
+}
+
+function getChapterNumber(title) {
+  const lower = cleanChapterTitle(title).toLowerCase();
+  const russianOrdinals = [
+    ["первая", 1],
+    ["первый", 1],
+    ["вторая", 2],
+    ["второй", 2],
+    ["третья", 3],
+    ["третий", 3],
+    ["четвертая", 4],
+    ["четвёртая", 4],
+    ["четвертый", 4],
+    ["четвёртый", 4],
+    ["пятая", 5],
+    ["пятый", 5],
+    ["шестая", 6],
+    ["шестой", 6],
+    ["седьмая", 7],
+    ["седьмой", 7],
+    ["восьмая", 8],
+    ["восьмой", 8],
+    ["девятая", 9],
+    ["девятый", 9],
+    ["десятая", 10],
+    ["десятый", 10],
+    ["одиннадцатая", 11],
+    ["одиннадцатый", 11],
+    ["двенадцатая", 12],
+    ["двенадцатый", 12],
+    ["тринадцатая", 13],
+    ["тринадцатый", 13],
+    ["четырнадцатая", 14],
+    ["четырнадцатый", 14],
+    ["пятнадцатая", 15],
+    ["пятнадцатый", 15],
+    ["шестнадцатая", 16],
+    ["шестнадцатый", 16],
+    ["семнадцатая", 17],
+    ["семнадцатый", 17],
+    ["восемнадцатая", 18],
+    ["восемнадцатый", 18],
+    ["девятнадцатая", 19],
+    ["девятнадцатый", 19],
+    ["двадцатая", 20],
+    ["двадцатый", 20],
+  ];
+
+  const digitMatch = lower.match(/(?:глава|chapter)\s+(\d{1,3})/);
+  if (digitMatch) {
+    return Number(digitMatch[1]);
+  }
+
+  const romanMatch = lower.match(/(?:глава|chapter)\s+([ivxlcdm]{1,8})\b/i);
+  if (romanMatch) {
+    return romanToNumber(romanMatch[1]);
+  }
+
+  const ordinal = russianOrdinals.find(([word]) => lower.includes(word));
+  return ordinal ? ordinal[1] : null;
+}
+
+function romanToNumber(value) {
+  const numerals = { i: 1, v: 5, x: 10, l: 50, c: 100, d: 500, m: 1000 };
+  return value
+    .toLowerCase()
+    .split("")
+    .reduce((total, char, index, chars) => {
+      const current = numerals[char] || 0;
+      const next = numerals[chars[index + 1]] || 0;
+      return current < next ? total - current : total + current;
+    }, 0);
+}
+
+function removeFrontMatterContents(rawChapters) {
+  const numbered = rawChapters.map((chapter) => getChapterNumber(chapter.title));
+  const firstChapterIndex = numbered.findIndex((number) => number === 1);
+  const hasOutOfOrderContentsBeforeStart = numbered
+    .slice(0, firstChapterIndex)
+    .some((number) => number && number > 1);
+
+  if (firstChapterIndex > 0 && hasOutOfOrderContentsBeforeStart) {
+    return rawChapters.slice(firstChapterIndex);
+  }
+
+  const firstChapterIndexes = numbered
+    .map((number, index) => (number === 1 ? index : -1))
+    .filter((index) => index >= 0);
+
+  if (firstChapterIndexes.length > 1) {
+    const repeatedStartIndex = firstChapterIndexes[1];
+    const possibleContents = rawChapters.slice(0, repeatedStartIndex);
+    const numberedPossibleContents = possibleContents.filter((_, index) => numbered[index]);
+    const shortPossibleContents = possibleContents.filter((chapter) => chapter.text.length < 700);
+
+    if (numberedPossibleContents.length >= 3 && shortPossibleContents.length >= Math.ceil(possibleContents.length * 0.6)) {
+      return rawChapters.slice(repeatedStartIndex);
+    }
+  }
+
+  return rawChapters;
+}
+
 function splitByHeadings(text) {
   const lines = text.split("\n");
   const result = [];
@@ -60,12 +169,12 @@ function splitByHeadings(text) {
     if (isChapterHeading(line)) {
       if (buffer.join("\n").trim()) {
         result.push({
-          title: currentTitle,
+          title: cleanChapterTitle(currentTitle),
           text: buffer.join("\n").trim(),
         });
       }
 
-      currentTitle = line.trim();
+      currentTitle = cleanChapterTitle(line);
       buffer = [];
       return;
     }
@@ -75,12 +184,13 @@ function splitByHeadings(text) {
 
   if (buffer.join("\n").trim()) {
     result.push({
-      title: currentTitle,
+      title: cleanChapterTitle(currentTitle),
       text: buffer.join("\n").trim(),
     });
   }
 
-  return result.length > 1 ? result : [];
+  const chaptersWithoutContents = removeFrontMatterContents(result);
+  return chaptersWithoutContents.length > 1 ? chaptersWithoutContents : [];
 }
 
 function splitIntoReadableParts(text) {
