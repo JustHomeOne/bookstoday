@@ -40,6 +40,51 @@ async function fetchSupabaseBooks() {
   return data.map(toPublicBook);
 }
 
+function normalizeBookField(value) {
+  return String(value || "").trim().toLowerCase();
+}
+
+async function findDuplicateBook({ title, author, isbn }) {
+  if (!booksDb) return null;
+
+  const normalizedTitle = normalizeBookField(title);
+  const normalizedAuthor = normalizeBookField(author);
+  const normalizedIsbn = normalizeBookField(isbn);
+
+  if (normalizedIsbn) {
+    const { data, error } = await booksDb
+      .from("books")
+      .select("id,title,author,isbn")
+      .ilike("isbn", normalizedIsbn)
+      .limit(1);
+
+    if (error) {
+      throw error;
+    }
+
+    if (data.length) {
+      return data[0];
+    }
+  }
+
+  if (!normalizedTitle || !normalizedAuthor) {
+    return null;
+  }
+
+  const { data, error } = await booksDb
+    .from("books")
+    .select("id,title,author,isbn")
+    .ilike("title", normalizedTitle)
+    .ilike("author", normalizedAuthor)
+    .limit(1);
+
+  if (error) {
+    throw error;
+  }
+
+  return data[0] || null;
+}
+
 function getFileExtension(file, fallback) {
   const fromName = file?.name?.split(".").pop();
   return String(fromName || fallback || "file").toLowerCase();

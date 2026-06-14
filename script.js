@@ -1,6 +1,6 @@
 const form = document.getElementById("book-form");
 const statusText = document.getElementById("status");
-const TARGET_FORMATS = ["epub", "mobi", "pdf", "txt"];
+const TARGET_FORMATS = ["epub", "mobi", "txt"];
 const ALLOWED_UPLOAD_FORMATS = new Set(TARGET_FORMATS);
 const MAX_UPLOAD_BYTES = 25 * 1024 * 1024;
 
@@ -91,7 +91,7 @@ async function saveBook() {
   const format = getFileExtension(bookFile);
 
   if (!ALLOWED_UPLOAD_FORMATS.has(format)) {
-    showStatus("Можно загружать только EPUB, MOBI, PDF или TXT.", true);
+    showStatus("Можно загружать только EPUB, MOBI или TXT.", true);
     return;
   }
 
@@ -104,7 +104,7 @@ async function saveBook() {
   showStatus("Загружаю оригинальный файл в Supabase...");
   const originalUrl = await uploadSupabaseFile("book-files", format, bookFile, format);
 
-  showStatus("Конвертирую книгу в EPUB, MOBI, PDF и TXT...");
+  showStatus("Конвертирую книгу в EPUB, MOBI и TXT...");
   const conversion = await convertBookFile(bookFile, convertFormats);
 
   showStatus("Загружаю сконвертированные файлы в Supabase...");
@@ -136,6 +136,6 @@ async function saveBook() {
   }
 
   await createSupabaseBook(newBook);
-  showStatus("Книга сохранена и доступна в нескольких форматах.");
+  showStatus("Книга сохранена и доступна в EPUB, MOBI и TXT.");
   form.reset();
 }

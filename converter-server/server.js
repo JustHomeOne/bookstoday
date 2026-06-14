@@ -15,11 +15,10 @@ const upload = multer({
   },
 });
 
-const ALLOWED_FORMATS = new Set(["epub", "mobi", "pdf", "txt"]);
+const ALLOWED_FORMATS = new Set(["epub", "mobi", "txt"]);
 const MIME_TYPES = {
   epub: "application/epub+zip",
   mobi: "application/x-mobipocket-ebook",
-  pdf: "application/pdf",
   txt: "text/plain; charset=utf-8",
 };
 
