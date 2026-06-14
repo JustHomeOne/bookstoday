@@ -2,6 +2,7 @@ const form = document.getElementById("book-form");
 const statusText = document.getElementById("status");
 const TARGET_FORMATS = ["epub", "mobi", "pdf", "txt"];
 const ALLOWED_UPLOAD_FORMATS = new Set(TARGET_FORMATS);
+const MAX_UPLOAD_BYTES = 25 * 1024 * 1024;
 
 function showStatus(message, isError = false) {
   statusText.textContent = message;
@@ -15,6 +16,10 @@ function getConverterApiUrl() {
 
 function getFileExtension(file) {
   return String(file?.name?.split(".").pop() || "").toLowerCase();
+}
+
+function formatMegabytes(bytes) {
+  return (bytes / 1024 / 1024).toFixed(1);
 }
 
 function base64ToBlob(base64, mimeType) {
@@ -43,10 +48,15 @@ async function convertBookFile(file, formats) {
   payload.append("book", file);
   payload.append("formats", JSON.stringify(formats));
 
-  const response = await fetch(`${apiUrl}/convert`, {
-    method: "POST",
-    body: payload,
-  });
+  let response;
+  try {
+    response = await fetch(`${apiUrl}/convert`, {
+      method: "POST",
+      body: payload,
+    });
+  } catch {
+    throw new Error("Не удалось связаться с converter-server. Проверьте, что Render-сервис Live, и попробуйте ещё раз через минуту.");
+  }
 
   if (!response.ok) {
     const errorText = await response.text();
@@ -70,6 +80,11 @@ async function saveBook() {
 
   if (!bookFile || !bookFile.size) {
     showStatus("Добавьте файл книги.", true);
+    return;
+  }
+
+  if (bookFile.size > MAX_UPLOAD_BYTES) {
+    showStatus(`Файл слишком большой: ${formatMegabytes(bookFile.size)} MB. Для бесплатного Render лучше загружать файлы до 25 MB.`, true);
     return;
   }
 
