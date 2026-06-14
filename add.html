@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Добавить книгу - Books Today</title>
-  <link rel="stylesheet" href="styles.css?v=20260614-3" />
+  <link rel="stylesheet" href="styles.css?v=20260614-4" />
 </head>
 <body>
   <header class="site-header">
@@ -12,7 +12,7 @@
       <div>
         <p class="eyebrow">Админ-панель</p>
         <h1>Добавить книгу</h1>
-        <p>Загрузите файл книги. Сайт автоматически создаст форматы для скачивания и текстовую версию для чтения онлайн.</p>
+        <p>Загрузите файл книги в EPUB, MOBI, PDF или TXT. Сайт автоматически подготовит остальные форматы.</p>
       </div>
       <nav class="top-actions" aria-label="Основная навигация">
         <a class="btn outline light" href="index.html">Каталог</a>
@@ -24,7 +24,7 @@
     <section class="card">
       <div class="notice">
         <strong>Автоконвертация включена</strong>
-        После загрузки сервер создаст EPUB, MOBI, PDF и TXT. EPUB, MOBI и PDF будут доступны для скачивания, TXT - для чтения прямо на сайте.
+        После загрузки сервер создаст EPUB, MOBI, PDF и TXT. Все четыре формата можно скачать, а TXT также можно читать прямо на сайте.
       </div>
 
       <form id="book-form">
@@ -54,22 +54,9 @@
           <textarea id="description" name="description" rows="4" placeholder="Краткое описание книги"></textarea>
         </div>
 
-        <div class="field-row">
-          <div class="field-group">
-            <label for="format">Формат загружаемого файла</label>
-            <select id="format" name="format" required>
-              <option value="epub">EPUB</option>
-              <option value="fb2">FB2</option>
-              <option value="pdf">PDF</option>
-              <option value="mobi">MOBI</option>
-              <option value="azw3">AZW3</option>
-              <option value="txt">TXT</option>
-            </select>
-          </div>
-          <div class="field-group">
-            <label for="bookFile">Файл книги</label>
-            <input id="bookFile" name="bookFile" type="file" accept=".epub,.fb2,.pdf,.mobi,.azw3,.txt" required />
-          </div>
+        <div class="field-group">
+          <label for="bookFile">Файл книги</label>
+          <input id="bookFile" name="bookFile" type="file" accept=".epub,.mobi,.pdf,.txt" required />
         </div>
 
         <button type="submit" class="btn">Загрузить и конвертировать</button>
@@ -79,9 +66,9 @@
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="supabase-config.js?v=20260614-3"></script>
-  <script src="converter-config.js?v=20260614-3"></script>
-  <script src="supabase-api.js?v=20260614-3"></script>
-  <script src="script.js?v=20260614-3"></script>
+  <script src="supabase-config.js?v=20260614-4"></script>
+  <script src="converter-config.js?v=20260614-4"></script>
+  <script src="supabase-api.js?v=20260614-4"></script>
+  <script src="script.js?v=20260614-4"></script>
 </body>
 </html>

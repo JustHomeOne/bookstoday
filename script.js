@@ -1,6 +1,7 @@
 const form = document.getElementById("book-form");
 const statusText = document.getElementById("status");
 const TARGET_FORMATS = ["epub", "mobi", "pdf", "txt"];
+const ALLOWED_UPLOAD_FORMATS = new Set(TARGET_FORMATS);
 
 function showStatus(message, isError = false) {
   statusText.textContent = message;
@@ -10,6 +11,10 @@ function showStatus(message, isError = false) {
 function getConverterApiUrl() {
   const config = window.BOOKS_CONVERTER_CONFIG || {};
   return String(config.apiUrl || "").replace(/\/$/, "");
+}
+
+function getFileExtension(file) {
+  return String(file?.name?.split(".").pop() || "").toLowerCase();
 }
 
 function base64ToBlob(base64, mimeType) {
@@ -62,10 +67,16 @@ form.addEventListener("submit", (event) => {
 async function saveBook() {
   const formData = new FormData(form);
   const bookFile = formData.get("bookFile");
-  const format = formData.get("format");
 
   if (!bookFile || !bookFile.size) {
     showStatus("Добавьте файл книги.", true);
+    return;
+  }
+
+  const format = getFileExtension(bookFile);
+
+  if (!ALLOWED_UPLOAD_FORMATS.has(format)) {
+    showStatus("Можно загружать только EPUB, MOBI, PDF или TXT.", true);
     return;
   }
 
