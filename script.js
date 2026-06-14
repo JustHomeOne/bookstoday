@@ -76,18 +76,22 @@ form.addEventListener("submit", (event) => {
 
 async function saveBook() {
   const formData = new FormData(form);
-  const manualFileUrl = formData.get("fileUrl").trim();
   const bookFile = formData.get("bookFile");
   const format = formData.get("format");
   const shouldConvert = formData.get("autoConvert") === "on";
   const convertFormats = getSelectedConvertFormats(formData);
+
+  if (!bookFile || !bookFile.size) {
+    showStatus("Добавьте файл книги.", true);
+    return;
+  }
 
   showStatus("Сохраняю книгу...");
 
   let uploadedBookUrl = "";
   let convertedFiles = [];
 
-  if (shouldConvert && bookFile && bookFile.size) {
+  if (shouldConvert) {
     if (!hasSupabase()) {
       throw new Error("Автоконвертация сохраняет результаты в Supabase. Сначала подключите базу.");
     }
@@ -111,13 +115,10 @@ async function saveBook() {
       }),
     );
   } else {
-    uploadedBookUrl = bookFile && bookFile.size
-      ? await uploadSupabaseFile("book-files", format, bookFile, format)
-      : "";
+    uploadedBookUrl = await uploadSupabaseFile("book-files", format, bookFile, format);
   }
 
-  const fileUrl = uploadedBookUrl || manualFileUrl;
-  const bookFiles = convertedFiles.length ? convertedFiles : [{ format, url: fileUrl }];
+  const bookFiles = convertedFiles.length ? convertedFiles : [{ format, url: uploadedBookUrl }];
 
   const newBook = {
     id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
@@ -130,8 +131,8 @@ async function saveBook() {
     createdAt: new Date().toISOString(),
   };
 
-  if (!newBook.title || !newBook.author || (!fileUrl && !convertedFiles.length)) {
-    showStatus("Заполните название, автора и добавьте ссылку или файл книги.", true);
+  if (!newBook.title || !newBook.author || !bookFiles.length) {
+    showStatus("Заполните название, автора и добавьте файл книги.", true);
     return;
   }
 

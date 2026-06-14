@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Добавить книгу - Books Today</title>
-  <link rel="stylesheet" href="styles.css?v=20260614-1" />
+  <link rel="stylesheet" href="styles.css?v=20260614-2" />
 </head>
 <body>
   <header class="site-header">
@@ -12,7 +12,7 @@
       <div>
         <p class="eyebrow">Админ-панель</p>
         <h1>Добавить книгу</h1>
-        <p>Добавьте данные книги и ссылку или файл. После подключения Supabase книга будет видна всем пользователям.</p>
+        <p>Добавьте данные книги и загрузите файл. После подключения Supabase книга будет видна всем пользователям.</p>
       </div>
       <nav class="top-actions" aria-label="Основная навигация">
         <a class="btn outline light" href="convert.html">Конвертер</a>
@@ -24,8 +24,8 @@
   <main class="container narrow">
     <section class="card">
       <div class="notice">
-        <strong>Файлы книги</strong>
-        Можно добавить прямую ссылку на файл или загрузить файл книги.
+        <strong>Файл книги</strong>
+        Загрузите файл книги с компьютера. Ссылки и обложки не используются.
       </div>
 
       <form id="book-form">
@@ -68,14 +68,9 @@
             </select>
           </div>
           <div class="field-group">
-            <label for="fileUrl">Ссылка на файл книги</label>
-            <input id="fileUrl" name="fileUrl" type="url" placeholder="https://..." />
+            <label for="bookFile">Файл книги</label>
+            <input id="bookFile" name="bookFile" type="file" accept=".epub,.fb2,.pdf,.mobi,.azw3,.txt" required />
           </div>
-        </div>
-
-        <div class="field-group">
-          <label for="bookFile">Или загрузить файл книги</label>
-          <input id="bookFile" name="bookFile" type="file" accept=".epub,.fb2,.pdf,.mobi,.azw3,.txt" />
         </div>
 
         <section class="convert-panel">
@@ -107,9 +102,9 @@
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="supabase-config.js?v=20260614-1"></script>
-  <script src="converter-config.js?v=20260614-1"></script>
-  <script src="supabase-api.js?v=20260614-1"></script>
-  <script src="script.js?v=20260614-1"></script>
+  <script src="supabase-config.js?v=20260614-2"></script>
+  <script src="converter-config.js?v=20260614-2"></script>
+  <script src="supabase-api.js?v=20260614-2"></script>
+  <script src="script.js?v=20260614-2"></script>
 </body>
 </html>
