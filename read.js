@@ -130,6 +130,17 @@ function romanToNumber(value) {
     }, 0);
 }
 
+function createFrontMatterChapter(chaptersToPreserve) {
+  const text = chaptersToPreserve
+    .map((chapter) => `${chapter.title}\n\n${chapter.text}`.trim())
+    .join("\n\n");
+
+  return {
+    title: "Начало книги",
+    text: `Этот блок был в файле перед началом основного текста.\n\n${text}`,
+  };
+}
+
 function removeFrontMatterContents(rawChapters) {
   const numbered = rawChapters.map((chapter) => getChapterNumber(chapter.title));
   const firstChapterIndex = numbered.findIndex((number) => number === 1);
@@ -138,7 +149,10 @@ function removeFrontMatterContents(rawChapters) {
     .some((number) => number && number > 1);
 
   if (firstChapterIndex > 0 && hasOutOfOrderContentsBeforeStart) {
-    return rawChapters.slice(firstChapterIndex);
+    return [
+      createFrontMatterChapter(rawChapters.slice(0, firstChapterIndex)),
+      ...rawChapters.slice(firstChapterIndex),
+    ];
   }
 
   const firstChapterIndexes = numbered
@@ -152,7 +166,10 @@ function removeFrontMatterContents(rawChapters) {
     const shortPossibleContents = possibleContents.filter((chapter) => chapter.text.length < 700);
 
     if (numberedPossibleContents.length >= 3 && shortPossibleContents.length >= Math.ceil(possibleContents.length * 0.6)) {
-      return rawChapters.slice(repeatedStartIndex);
+      return [
+        createFrontMatterChapter(possibleContents),
+        ...rawChapters.slice(repeatedStartIndex),
+      ];
     }
   }
 

@@ -75,7 +75,7 @@ function createReadUrl(book, file) {
   const params = new URLSearchParams({
     title: book.title || "Книга",
     file: file.url,
-    v: "20260614-10",
+    v: "20260614-11",
   });
 
   return `read.html?${params.toString()}`;
