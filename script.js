@@ -1,20 +1,6 @@
-const STORAGE_KEY = "libraryBooks";
-
 const form = document.getElementById("book-form");
 const statusText = document.getElementById("status");
-
-function getStoredBooks() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
-}
-
-function saveStoredBooks(books) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(books));
-}
+const TARGET_FORMATS = ["epub", "mobi", "pdf", "txt"];
 
 function showStatus(message, isError = false) {
   statusText.textContent = message;
@@ -35,6 +21,10 @@ function base64ToBlob(base64, mimeType) {
   }
 
   return new Blob([bytes], { type: mimeType || "application/octet-stream" });
+}
+
+function getConvertFormats(sourceFormat) {
+  return TARGET_FORMATS.filter((format) => format !== sourceFormat);
 }
 
 async function convertBookFile(file, formats) {
@@ -61,11 +51,6 @@ async function convertBookFile(file, formats) {
   return response.json();
 }
 
-function getSelectedConvertFormats(formData) {
-  const selected = formData.getAll("convertFormats").map((format) => String(format).toLowerCase());
-  return Array.from(new Set([...selected, "txt"]));
-}
-
 form.addEventListener("submit", (event) => {
   event.preventDefault();
   saveBook().catch((error) => {
@@ -78,47 +63,35 @@ async function saveBook() {
   const formData = new FormData(form);
   const bookFile = formData.get("bookFile");
   const format = formData.get("format");
-  const shouldConvert = formData.get("autoConvert") === "on";
-  const convertFormats = getSelectedConvertFormats(formData);
 
   if (!bookFile || !bookFile.size) {
     showStatus("Добавьте файл книги.", true);
     return;
   }
 
-  showStatus("Сохраняю книгу...");
-
-  let uploadedBookUrl = "";
-  let convertedFiles = [];
-
-  if (shouldConvert) {
-    if (!hasSupabase()) {
-      throw new Error("Автоконвертация сохраняет результаты в Supabase. Сначала подключите базу.");
-    }
-
-    if (!convertFormats.length) {
-      throw new Error("Выберите хотя бы один формат для конвертации.");
-    }
-
-    showStatus("Конвертирую книгу в EPUB, MOBI, PDF и TXT для чтения...");
-    const conversion = await convertBookFile(bookFile, convertFormats);
-
-    showStatus("Загружаю сконвертированные файлы в Supabase...");
-    convertedFiles = await Promise.all(
-      conversion.files.map(async (convertedFile) => {
-        const blob = base64ToBlob(convertedFile.base64, convertedFile.mimeType);
-        const url = await uploadSupabaseFile("book-files", convertedFile.format, blob, convertedFile.format);
-        return {
-          format: convertedFile.format,
-          url,
-        };
-      }),
-    );
-  } else {
-    uploadedBookUrl = await uploadSupabaseFile("book-files", format, bookFile, format);
+  if (!hasSupabase()) {
+    throw new Error("Загрузка книг и автоконвертация требуют подключённый Supabase.");
   }
 
-  const bookFiles = convertedFiles.length ? convertedFiles : [{ format, url: uploadedBookUrl }];
+  const convertFormats = getConvertFormats(format);
+
+  showStatus("Загружаю оригинальный файл в Supabase...");
+  const originalUrl = await uploadSupabaseFile("book-files", format, bookFile, format);
+
+  showStatus("Конвертирую книгу в EPUB, MOBI, PDF и TXT...");
+  const conversion = await convertBookFile(bookFile, convertFormats);
+
+  showStatus("Загружаю сконвертированные файлы в Supabase...");
+  const convertedFiles = await Promise.all(
+    conversion.files.map(async (convertedFile) => {
+      const blob = base64ToBlob(convertedFile.base64, convertedFile.mimeType);
+      const url = await uploadSupabaseFile("book-files", convertedFile.format, blob, convertedFile.format);
+      return {
+        format: convertedFile.format,
+        url,
+      };
+    }),
+  );
 
   const newBook = {
     id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
@@ -127,24 +100,16 @@ async function saveBook() {
     year: formData.get("year").trim(),
     isbn: formData.get("isbn").trim(),
     description: formData.get("description").trim(),
-    files: bookFiles,
+    files: [{ format, url: originalUrl }, ...convertedFiles],
     createdAt: new Date().toISOString(),
   };
 
-  if (!newBook.title || !newBook.author || !bookFiles.length) {
-    showStatus("Заполните название, автора и добавьте файл книги.", true);
+  if (!newBook.title || !newBook.author) {
+    showStatus("Заполните название и автора.", true);
     return;
   }
 
-  if (hasSupabase()) {
-    await createSupabaseBook(newBook);
-    showStatus("Книга сохранена в Supabase. Она будет видна на других устройствах.");
-  } else {
-    const books = getStoredBooks();
-    books.unshift(newBook);
-    saveStoredBooks(books);
-    showStatus("Книга сохранена локально. Вставьте ключи Supabase, чтобы включить общую базу.");
-  }
-
+  await createSupabaseBook(newBook);
+  showStatus("Книга сохранена и доступна в нескольких форматах.");
   form.reset();
 }

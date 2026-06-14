@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Добавить книгу - Books Today</title>
-  <link rel="stylesheet" href="styles.css?v=20260614-2" />
+  <link rel="stylesheet" href="styles.css?v=20260614-3" />
 </head>
 <body>
   <header class="site-header">
@@ -12,10 +12,9 @@
       <div>
         <p class="eyebrow">Админ-панель</p>
         <h1>Добавить книгу</h1>
-        <p>Добавьте данные книги и загрузите файл. После подключения Supabase книга будет видна всем пользователям.</p>
+        <p>Загрузите файл книги. Сайт автоматически создаст форматы для скачивания и текстовую версию для чтения онлайн.</p>
       </div>
       <nav class="top-actions" aria-label="Основная навигация">
-        <a class="btn outline light" href="convert.html">Конвертер</a>
         <a class="btn outline light" href="index.html">Каталог</a>
       </nav>
     </div>
@@ -24,8 +23,8 @@
   <main class="container narrow">
     <section class="card">
       <div class="notice">
-        <strong>Файл книги</strong>
-        Загрузите файл книги с компьютера. Ссылки и обложки не используются.
+        <strong>Автоконвертация включена</strong>
+        После загрузки сервер создаст EPUB, MOBI, PDF и TXT. EPUB, MOBI и PDF будут доступны для скачивания, TXT - для чтения прямо на сайте.
       </div>
 
       <form id="book-form">
@@ -57,7 +56,7 @@
 
         <div class="field-row">
           <div class="field-group">
-            <label for="format">Формат исходного файла</label>
+            <label for="format">Формат загружаемого файла</label>
             <select id="format" name="format" required>
               <option value="epub">EPUB</option>
               <option value="fb2">FB2</option>
@@ -73,38 +72,16 @@
           </div>
         </div>
 
-        <section class="convert-panel">
-          <label class="check-row">
-            <input id="autoConvert" name="autoConvert" type="checkbox" />
-            <span>Автоматически создать EPUB, MOBI, PDF и текст для чтения</span>
-          </label>
-          <div class="format-options" aria-label="Форматы автоконвертации">
-            <label class="check-row">
-              <input name="convertFormats" type="checkbox" value="epub" checked />
-              <span>EPUB</span>
-            </label>
-            <label class="check-row">
-              <input name="convertFormats" type="checkbox" value="mobi" checked />
-              <span>MOBI</span>
-            </label>
-            <label class="check-row">
-              <input name="convertFormats" type="checkbox" value="pdf" checked />
-              <span>PDF</span>
-            </label>
-          </div>
-          <p class="muted">TXT будет создан автоматически для чтения прямо на сайте, а не как основная кнопка скачивания.</p>
-        </section>
-
-        <button type="submit" class="btn">Сохранить книгу</button>
+        <button type="submit" class="btn">Загрузить и конвертировать</button>
       </form>
       <p id="status" class="status"></p>
     </section>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="supabase-config.js?v=20260614-2"></script>
-  <script src="converter-config.js?v=20260614-2"></script>
-  <script src="supabase-api.js?v=20260614-2"></script>
-  <script src="script.js?v=20260614-2"></script>
+  <script src="supabase-config.js?v=20260614-3"></script>
+  <script src="converter-config.js?v=20260614-3"></script>
+  <script src="supabase-api.js?v=20260614-3"></script>
+  <script src="script.js?v=20260614-3"></script>
 </body>
 </html>
