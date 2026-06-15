@@ -196,14 +196,34 @@ function stripWikisourceHtml(html) {
     .replace(/<br\s*\/?>/gi, "\n"));
 }
 
-function hasCopyrightWarning(text) {
-  return [
+function hasCopyrightWarning(text, categories = []) {
+  const lower = text.toLowerCase();
+  const categoryText = categories
+    .map((category) => category.category || category["*"] || "")
+    .join(" ")
+    .toLowerCase();
+  const combined = `${lower} ${categoryText}`;
+
+  const publicDomainSignals = [
+    "общественное достояние",
+    "срок действия исключительного авторского права истёк",
+    "срок действия исключительного авторского права истек",
+  ];
+  const strongWarnings = [
     "нарушение авторских прав",
-    "несвобод",
-    "не свобод",
-    "copyright",
-    "удалить",
-  ].some((phrase) => text.toLowerCase().includes(phrase));
+    "copyright violation",
+    "copyvio",
+    "несвободная лицензия",
+    "несвободный текст",
+    "не свободный текст",
+    "удалить как нарушение",
+  ];
+
+  if (publicDomainSignals.some((phrase) => combined.includes(phrase))) {
+    return false;
+  }
+
+  return strongWarnings.some((phrase) => combined.includes(phrase));
 }
 
 function parseAuthorFromTitle(title) {
@@ -264,7 +284,7 @@ app.get("/wikisource/book", async (request, response) => {
     }
 
     const text = stripWikisourceHtml(parsed.text);
-    if (hasCopyrightWarning(text)) {
+    if (hasCopyrightWarning(text, parsed.categories || [])) {
       response.status(422).send("Страница похожа на спорную по авторским правам. Импорт остановлен.");
       return;
     }
