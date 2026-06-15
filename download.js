@@ -11,7 +11,7 @@ const subtitleEl = document.getElementById("download-subtitle");
 const timerText = document.getElementById("timer-text");
 const downloadButton = document.getElementById("download-link");
 
-let secondsLeft = 7;
+let secondsLeft = 15;
 let isReady = false;
 let resolvedFileUrl = fileUrl;
 
@@ -149,7 +149,7 @@ if (!fileUrl && !sourceFileUrl) {
     secondsLeft -= 1;
 
     if (secondsLeft > 0) {
-      timerText.textContent = `Кнопка скачивания появится через ${secondsLeft} секунд.`;
+      timerText.textContent = `Смотрите рекламное видео. Скачивание откроется через ${secondsLeft} секунд.`;
       return;
     }
 
