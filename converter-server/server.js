@@ -17,6 +17,7 @@ const upload = multer({
 
 const ALLOWED_FORMATS = new Set(["epub", "mobi", "txt"]);
 const METADATA_HOSTS = new Set(["fantasy-worlds.org", "www.fantasy-worlds.org"]);
+const WIKISOURCE_HOSTS = new Set(["ru.wikisource.org"]);
 const MIME_TYPES = {
   epub: "application/epub+zip",
   mobi: "application/x-mobipocket-ebook",
@@ -124,6 +125,162 @@ app.get("/metadata", async (request, response) => {
     response.json(metadata);
   } catch (error) {
     response.status(400).send(error.message || "Ошибка импорта данных книги.");
+  }
+});
+
+function assertWikisourceUrl(value) {
+  let parsed;
+
+  try {
+    parsed = new URL(value);
+  } catch {
+    throw new Error("Некорректная ссылка Викитеки.");
+  }
+
+  if (parsed.protocol !== "https:" || !WIKISOURCE_HOSTS.has(parsed.hostname.toLowerCase())) {
+    throw new Error("Поддерживаются только ссылки https://ru.wikisource.org/.");
+  }
+
+  return parsed;
+}
+
+function getWikisourceTitle(value) {
+  const parsed = assertWikisourceUrl(value);
+
+  if (parsed.searchParams.get("title")) {
+    return parsed.searchParams.get("title");
+  }
+
+  const match = parsed.pathname.match(/^\/wiki\/(.+)$/);
+  if (!match) {
+    throw new Error("Не удалось определить название страницы Викитеки.");
+  }
+
+  return decodeURIComponent(match[1]).replace(/_/g, " ");
+}
+
+function getWikisourceUrl(title) {
+  return `https://ru.wikisource.org/wiki/${encodeURIComponent(title.replace(/\s+/g, "_"))}`;
+}
+
+async function wikisourceApi(params) {
+  const url = new URL("https://ru.wikisource.org/w/api.php");
+  Object.entries({
+    format: "json",
+    formatversion: "2",
+    origin: "*",
+    ...params,
+  }).forEach(([key, value]) => {
+    url.searchParams.set(key, value);
+  });
+
+  const apiResponse = await fetch(url, {
+    headers: {
+      "user-agent": "BooksTodayWikisourceImporter/1.0",
+    },
+  });
+
+  if (!apiResponse.ok) {
+    throw new Error(`Викитека вернула ошибку ${apiResponse.status}.`);
+  }
+
+  return apiResponse.json();
+}
+
+function stripWikisourceHtml(html) {
+  return decodeHtmlEntities(String(html || "")
+    .replace(/<style[\s\S]*?<\/style>/gi, "")
+    .replace(/<script[\s\S]*?<\/script>/gi, "")
+    .replace(/<sup[^>]*class="[^"]*reference[^"]*"[\s\S]*?<\/sup>/gi, "")
+    .replace(/<\/(p|div|h1|h2|h3|h4|li|section)>/gi, "\n\n")
+    .replace(/<br\s*\/?>/gi, "\n"));
+}
+
+function hasCopyrightWarning(text) {
+  return [
+    "нарушение авторских прав",
+    "несвобод",
+    "не свобод",
+    "copyright",
+    "удалить",
+  ].some((phrase) => text.toLowerCase().includes(phrase));
+}
+
+function parseAuthorFromTitle(title) {
+  const match = title.match(/\(([^)]+)\)/);
+  return match ? match[1].replace(/\/.*/, "").trim() : "Викитека";
+}
+
+function cleanWikisourceTitle(title) {
+  return String(title || "")
+    .replace(/\/.*$/, "")
+    .replace(/\s*\([^)]+\)\s*$/, "")
+    .trim();
+}
+
+app.get("/wikisource/category", async (request, response) => {
+  try {
+    const categoryTitle = getWikisourceTitle(request.query.url);
+    if (!categoryTitle.startsWith("Категория:")) {
+      response.status(400).send("Нужна ссылка именно на категорию Викитеки.");
+      return;
+    }
+
+    const data = await wikisourceApi({
+      action: "query",
+      list: "categorymembers",
+      cmtitle: categoryTitle,
+      cmnamespace: "0",
+      cmlimit: "100",
+    });
+
+    const pages = (data.query?.categorymembers || []).map((page) => ({
+      title: page.title,
+      url: getWikisourceUrl(page.title),
+      safe: true,
+      reason: "Базовая проверка пройдена",
+    }));
+
+    response.json({ title: categoryTitle, pages });
+  } catch (error) {
+    response.status(400).send(error.message || "Ошибка загрузки категории Викитеки.");
+  }
+});
+
+app.get("/wikisource/book", async (request, response) => {
+  try {
+    const pageTitle = getWikisourceTitle(request.query.url);
+    const data = await wikisourceApi({
+      action: "parse",
+      page: pageTitle,
+      prop: "text|displaytitle|categories",
+      redirects: "1",
+    });
+
+    const parsed = data.parse;
+    if (!parsed?.text) {
+      response.status(422).send("Не удалось получить текст страницы Викитеки.");
+      return;
+    }
+
+    const text = stripWikisourceHtml(parsed.text);
+    if (hasCopyrightWarning(text)) {
+      response.status(422).send("Страница похожа на спорную по авторским правам. Импорт остановлен.");
+      return;
+    }
+
+    response.json({
+      title: cleanWikisourceTitle(parsed.title || pageTitle),
+      author: parseAuthorFromTitle(parsed.title || pageTitle),
+      year: "",
+      slug: cleanWikisourceTitle(parsed.title || pageTitle).toLowerCase().replace(/[^a-zа-яё0-9]+/gi, "-").replace(/^-|-$/g, ""),
+      description: "Текст импортирован из Викитеки.",
+      text,
+      sourceUrl: getWikisourceUrl(parsed.title || pageTitle),
+      license: "CC BY-SA / условия Викитеки",
+    });
+  } catch (error) {
+    response.status(400).send(error.message || "Ошибка импорта страницы Викитеки.");
   }
 });
 

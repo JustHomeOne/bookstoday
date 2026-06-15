@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Админ-панель - Books Today</title>
+  <link rel="stylesheet" href="styles.css?v=20260615-2" />
+</head>
+<body>
+  <header class="site-header compact">
+    <div class="container header-grid">
+      <div>
+        <p class="eyebrow">Скрытая панель</p>
+        <h1>Админ-панель</h1>
+        <p>Импорт книг, ручная загрузка и служебные действия без ссылок с главного сайта.</p>
+      </div>
+      <nav class="top-actions" aria-label="Основная навигация">
+        <a class="btn outline light" href="index.html">Каталог</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section id="admin-login" class="card auth-card">
+      <h2>Вход</h2>
+      <div class="field-group">
+        <label for="admin-password">Пароль</label>
+        <input id="admin-password" type="password" autocomplete="current-password" />
+      </div>
+      <button id="admin-login-button" class="btn" type="button">Войти</button>
+      <p id="admin-login-status" class="status"></p>
+    </section>
+
+    <section id="admin-panel" class="admin-panel" hidden>
+      <section class="card">
+        <h2>Импорт из Викитеки</h2>
+        <p class="muted">Вставьте ссылку на категорию Викитеки. Админка найдет страницы, проверит базовые признаки свободного текста и позволит импортировать выбранные книги.</p>
+        <div class="metadata-import">
+          <div class="field-group">
+            <label for="wikisource-category">Ссылка на категорию</label>
+            <input id="wikisource-category" type="url" placeholder="https://ru.wikisource.org/wiki/Категория:Психология" />
+          </div>
+          <button id="load-wikisource-category" class="btn outline" type="button">Найти книги</button>
+        </div>
+        <div class="admin-actions">
+          <button id="import-selected-books" class="btn" type="button" disabled>Импортировать выбранные</button>
+          <button id="select-safe-books" class="btn outline" type="button" disabled>Выбрать безопасные</button>
+        </div>
+        <p id="admin-status" class="status"></p>
+        <div id="wikisource-list" class="import-list"></div>
+      </section>
+
+      <section class="card">
+        <h2>Ручная загрузка</h2>
+        <p class="muted">Для обычной ручной загрузки используйте страницу добавления книги. Она не показана в меню, но остается доступной по прямой ссылке.</p>
+        <a class="btn outline" href="add.html">Открыть добавление книги</a>
+      </section>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js?v=20260614-8"></script>
+  <script src="converter-config.js?v=20260614-8"></script>
+  <script src="supabase-api.js?v=20260614-12"></script>
+  <script src="admin.js?v=20260615-2"></script>
+</body>
+</html>
