@@ -51,9 +51,12 @@ function filterBooks(books) {
     const isbn = String(book.isbn || "").toLowerCase();
     const year = Number(book.year) || 0;
     const formats = getBookFormats(book).map((file) => file.format);
+    const virtualFormats = formats.includes("txt")
+      ? [...new Set([...formats, "epub", "mobi"])]
+      : formats;
 
     const matchesQuery = !query || title.includes(query) || author.includes(query) || isbn.includes(query);
-    const matchesFormat = !format || formats.includes(format);
+    const matchesFormat = !format || virtualFormats.includes(format);
     const matchesMin = Number.isNaN(yearMin) || year >= yearMin;
     const matchesMax = Number.isNaN(yearMax) || year <= yearMax;
 
@@ -63,6 +66,7 @@ function filterBooks(books) {
 
 function createDownloadUrl(book, file) {
   const params = new URLSearchParams({
+    bookId: book.id || "",
     title: book.title || "Книга",
     format: file.format,
     file: file.url,
@@ -79,6 +83,18 @@ function createReadUrl(book, file) {
   });
 
   return `read.html?${params.toString()}`;
+}
+
+function createLazyDownloadUrl(book, format, txtFile) {
+  const params = new URLSearchParams({
+    bookId: book.id || "",
+    title: book.title || "Книга",
+    format,
+    sourceFormat: "txt",
+    sourceFile: txtFile.url,
+  });
+
+  return `download.html?${params.toString()}`;
 }
 
 function getFormatLabel(format) {
@@ -118,15 +134,32 @@ function renderBooks(books) {
 
   books.forEach((book) => {
     const formats = getBookFormats(book);
+    const txtFile = formats.find((file) => file.format === "txt");
+    const availableFormats = new Set(formats.map((file) => file.format));
     const card = document.createElement("article");
     card.className = "book-card";
 
-    const badges = formats.length
-      ? formats.map((file) => `<span class="format-badge">${escapeHtml(getFormatLabel(file.format))}</span>`).join("")
+    const badgeFormats = txtFile
+      ? [...new Set([...formats.map((file) => file.format), "epub", "mobi"])]
+      : formats.map((file) => file.format);
+
+    const badges = badgeFormats.length
+      ? badgeFormats.map((bookFormat) => `<span class="format-badge">${escapeHtml(getFormatLabel(bookFormat))}</span>`).join("")
       : `<span class="format-badge empty">Нет файлов</span>`;
 
+    const lazyButtons = txtFile
+      ? ["epub", "mobi"]
+        .filter((format) => !availableFormats.has(format))
+        .map((format) => `
+          <a class="format-link lazy-link" href="${escapeHtml(createLazyDownloadUrl(book, format, txtFile))}">
+            Скачать ${escapeHtml(getFormatLabel(format))}
+          </a>
+        `)
+        .join("")
+      : "";
+
     const formatButtons = formats.length
-      ? formats.map((file) => renderFormatButton(book, file)).join("")
+      ? `${formats.map((file) => renderFormatButton(book, file)).join("")}${lazyButtons}`
       : `<span class="muted">Файлы скоро появятся</span>`;
 
     card.innerHTML = `

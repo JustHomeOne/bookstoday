@@ -57,25 +57,6 @@ async function apiGet(path, params) {
   return response.json();
 }
 
-async function convertTextFile(file, format) {
-  const apiUrl = getConverterApiUrl();
-  const payload = new FormData();
-  payload.append("book", file);
-  payload.append("formats", JSON.stringify([format]));
-
-  const response = await fetch(`${apiUrl}/convert`, {
-    method: "POST",
-    body: payload,
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(errorText || "Ошибка конвертации.");
-  }
-
-  return response.json();
-}
-
 function unlockAdmin() {
   sessionStorage.setItem("books-admin-ok", "1");
   loginSection.hidden = true;
@@ -140,24 +121,6 @@ async function importOneWikisourceBook(page) {
   const textFile = new File([textBlob], `${book.slug || "book"}.txt`, { type: "text/plain; charset=utf-8" });
   showAdminStatus(`Загружаю TXT: ${book.title}`);
   const txtUrl = await uploadSupabaseFile("book-files", "txt", textFile, "txt");
-  const convertedFiles = [];
-
-  for (const format of ["epub", "mobi"]) {
-    try {
-      showAdminStatus(`Конвертирую ${format.toUpperCase()}: ${book.title}`);
-      const conversion = await convertTextFile(textFile, format);
-      const convertedFile = conversion.files[0];
-      const blob = base64ToBlob(convertedFile.base64, convertedFile.mimeType);
-      showAdminStatus(`Загружаю ${format.toUpperCase()}: ${book.title}`);
-      const url = await uploadSupabaseFile("book-files", convertedFile.format, blob, convertedFile.format);
-      convertedFiles.push({
-        format: convertedFile.format,
-        url,
-      });
-    } catch (error) {
-      console.warn(`Не удалось создать ${format}`, error);
-    }
-  }
 
   showAdminStatus(`Сохраняю книгу в базе: ${book.title}`);
   await createSupabaseBook({
@@ -166,7 +129,7 @@ async function importOneWikisourceBook(page) {
     year: book.year || "",
     isbn: "",
     description: `${book.description || ""}\n\nИсточник: ${book.sourceUrl}\nЛицензия: ${book.license}`.trim(),
-    files: [{ format: "txt", url: txtUrl }, ...convertedFiles],
+    files: [{ format: "txt", url: txtUrl }],
   });
 
   return "imported";

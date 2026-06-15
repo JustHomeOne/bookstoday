@@ -143,3 +143,19 @@ async function createSupabaseBook(book) {
 
   return createdBook.id;
 }
+
+async function addSupabaseBookFile(bookId, file) {
+  if (!booksDb || !bookId || !file?.url || !file?.format) return null;
+
+  const { error } = await booksDb.from("book_files").insert({
+    book_id: bookId,
+    format: file.format,
+    file_url: file.url,
+  });
+
+  if (error) {
+    throw error;
+  }
+
+  return true;
+}
