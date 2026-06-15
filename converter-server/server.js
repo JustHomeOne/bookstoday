@@ -54,6 +54,8 @@ function assertPublicMetadataUrl(value) {
 function decodeHtmlEntities(value) {
   return String(value || "")
     .replace(/&nbsp;/g, " ")
+    .replace(/&#(\d+);/g, (_match, code) => String.fromCodePoint(Number(code)))
+    .replace(/&#x([0-9a-f]+);/gi, (_match, code) => String.fromCodePoint(parseInt(code, 16)))
     .replace(/&amp;/g, "&")
     .replace(/&quot;/g, "\"")
     .replace(/&#39;/g, "'")
@@ -205,7 +207,9 @@ function stripWikisourceHtml(html) {
     .replace(/<script[\s\S]*?<\/script>/gi, "")
     .replace(/<sup[^>]*class="[^"]*reference[^"]*"[\s\S]*?<\/sup>/gi, "")
     .replace(/<\/(p|div|h1|h2|h3|h4|li|section)>/gi, "\n\n")
-    .replace(/<br\s*\/?>/gi, "\n"));
+    .replace(/<br\s*\/?>/gi, "\n"))
+    .replace(/\u00a0/g, " ")
+    .replace(/[ \t]{2,}/g, " ");
 }
 
 function hasCopyrightWarning(text, categories = []) {
