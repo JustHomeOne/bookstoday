@@ -8,6 +8,7 @@ const loginButton = document.getElementById("admin-login-button");
 const loginStatus = document.getElementById("admin-login-status");
 const categoryInput = document.getElementById("wikisource-category");
 const loadCategoryButton = document.getElementById("load-wikisource-category");
+const selectAllButton = document.getElementById("select-all-books");
 const selectSafeButton = document.getElementById("select-safe-books");
 const importSelectedButton = document.getElementById("import-selected-books");
 const importList = document.getElementById("wikisource-list");
@@ -98,7 +99,8 @@ function renderCategoryPages() {
   });
 
   selectSafeButton.disabled = !categoryPages.some((page) => page.safe);
-  importSelectedButton.disabled = !categoryPages.some((page) => page.safe);
+  selectAllButton.disabled = !categoryPages.length;
+  importSelectedButton.disabled = !categoryPages.length;
 }
 
 async function loadWikisourceCategory() {
@@ -203,7 +205,13 @@ loadCategoryButton.addEventListener("click", () => {
 });
 
 selectSafeButton.addEventListener("click", () => {
-  importList.querySelectorAll("input[type='checkbox']:not(:disabled)").forEach((input) => {
+  importList.querySelectorAll("input[type='checkbox']").forEach((input) => {
+    input.checked = categoryPages[Number(input.value)]?.safe || false;
+  });
+});
+
+selectAllButton.addEventListener("click", () => {
+  importList.querySelectorAll("input[type='checkbox']").forEach((input) => {
     input.checked = true;
   });
 });
