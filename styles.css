@@ -150,6 +150,22 @@ header p {
   margin: 14px 0 10px;
 }
 
+.metadata-import {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: end;
+  margin-bottom: 18px;
+  border: 1px solid rgba(15, 118, 110, 0.16);
+  border-radius: 8px;
+  padding: 16px;
+  background: #f8fafc;
+}
+
+.metadata-import .field-group {
+  margin-bottom: 0;
+}
+
 .toolbar {
   display: grid;
   grid-template-columns: minmax(220px, 2fr) minmax(130px, 1fr) minmax(110px, 0.7fr) minmax(110px, 0.7fr) auto;
@@ -649,6 +665,7 @@ textarea:focus {
   .toolbar,
   .field-row,
   .books-grid,
+  .metadata-import,
   .reader-layout {
     grid-template-columns: 1fr;
   }

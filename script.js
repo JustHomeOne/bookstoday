@@ -1,5 +1,7 @@
 const form = document.getElementById("book-form");
 const statusText = document.getElementById("status");
+const importMetadataButton = document.getElementById("import-metadata");
+const sourceUrlInput = document.getElementById("sourceUrl");
 const TARGET_FORMATS = ["epub", "mobi", "txt"];
 const ALLOWED_UPLOAD_FORMATS = new Set(TARGET_FORMATS);
 const MAX_UPLOAD_BYTES = 25 * 1024 * 1024;
@@ -65,6 +67,56 @@ async function convertBookFile(file, formats) {
 
   return response.json();
 }
+
+async function fetchBookMetadata(sourceUrl) {
+  const apiUrl = getConverterApiUrl();
+
+  if (!apiUrl) {
+    throw new Error("Адрес converter-server ещё не указан в converter-config.js.");
+  }
+
+  const response = await fetch(`${apiUrl}/metadata?url=${encodeURIComponent(sourceUrl)}`);
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(errorText || "Не удалось получить данные книги.");
+  }
+
+  return response.json();
+}
+
+function setFieldValue(name, value) {
+  const field = form.elements[name];
+  if (field && value) {
+    field.value = value;
+  }
+}
+
+async function importMetadata() {
+  const sourceUrl = sourceUrlInput.value.trim();
+
+  if (!sourceUrl) {
+    showStatus("Вставьте ссылку на страницу книги.", true);
+    return;
+  }
+
+  showStatus("Получаю данные книги по ссылке...");
+  const metadata = await fetchBookMetadata(sourceUrl);
+
+  setFieldValue("title", metadata.title);
+  setFieldValue("author", metadata.author);
+  setFieldValue("year", metadata.year);
+  setFieldValue("isbn", metadata.isbn);
+  setFieldValue("description", metadata.description);
+
+  showStatus("Данные заполнены. Проверьте поля и загрузите файл книги.");
+}
+
+importMetadataButton.addEventListener("click", () => {
+  importMetadata().catch((error) => {
+    console.error(error);
+    showStatus(`Ошибка импорта: ${error.message || "проверьте ссылку."}`, true);
+  });
+});
 
 form.addEventListener("submit", (event) => {
   event.preventDefault();

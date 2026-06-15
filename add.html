@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Добавить книгу - Books Today</title>
-  <link rel="stylesheet" href="styles.css?v=20260614-9" />
+  <link rel="stylesheet" href="styles.css?v=20260615-1" />
 </head>
 <body>
   <header class="site-header compact">
@@ -28,6 +28,14 @@
       </div>
 
       <form id="book-form">
+        <div class="metadata-import">
+          <div class="field-group">
+            <label for="sourceUrl">Ссылка на страницу книги</label>
+            <input id="sourceUrl" name="sourceUrl" type="url" placeholder="https://fantasy-worlds.org/lib/id19869/" />
+          </div>
+          <button id="import-metadata" type="button" class="btn outline">Заполнить данные</button>
+        </div>
+
         <div class="field-group">
           <label for="title">Название</label>
           <input id="title" name="title" type="text" required />
@@ -69,6 +77,6 @@
   <script src="supabase-config.js?v=20260614-8"></script>
   <script src="converter-config.js?v=20260614-8"></script>
   <script src="supabase-api.js?v=20260614-12"></script>
-  <script src="script.js?v=20260614-12"></script>
+  <script src="script.js?v=20260615-1"></script>
 </body>
 </html>
