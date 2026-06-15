@@ -57,11 +57,11 @@ async function apiGet(path, params) {
   return response.json();
 }
 
-async function convertTextFile(file) {
+async function convertTextFile(file, format) {
   const apiUrl = getConverterApiUrl();
   const payload = new FormData();
   payload.append("book", file);
-  payload.append("formats", JSON.stringify(["epub", "mobi"]));
+  payload.append("formats", JSON.stringify([format]));
 
   const response = await fetch(`${apiUrl}/convert`, {
     method: "POST",
@@ -124,6 +124,7 @@ function getSelectedPages() {
 }
 
 async function importOneWikisourceBook(page) {
+  showAdminStatus(`Получаю текст: ${page.title}`);
   const book = await apiGet("/wikisource/book", { url: page.url });
   const duplicate = await findDuplicateBook({
     title: book.title,
@@ -137,19 +138,28 @@ async function importOneWikisourceBook(page) {
 
   const textBlob = new Blob([book.text], { type: "text/plain; charset=utf-8" });
   const textFile = new File([textBlob], `${book.slug || "book"}.txt`, { type: "text/plain; charset=utf-8" });
+  showAdminStatus(`Загружаю TXT: ${book.title}`);
   const txtUrl = await uploadSupabaseFile("book-files", "txt", textFile, "txt");
-  const conversion = await convertTextFile(textFile);
-  const convertedFiles = await Promise.all(
-    conversion.files.map(async (convertedFile) => {
+  const convertedFiles = [];
+
+  for (const format of ["epub", "mobi"]) {
+    try {
+      showAdminStatus(`Конвертирую ${format.toUpperCase()}: ${book.title}`);
+      const conversion = await convertTextFile(textFile, format);
+      const convertedFile = conversion.files[0];
       const blob = base64ToBlob(convertedFile.base64, convertedFile.mimeType);
+      showAdminStatus(`Загружаю ${format.toUpperCase()}: ${book.title}`);
       const url = await uploadSupabaseFile("book-files", convertedFile.format, blob, convertedFile.format);
-      return {
+      convertedFiles.push({
         format: convertedFile.format,
         url,
-      };
-    }),
-  );
+      });
+    } catch (error) {
+      console.warn(`Не удалось создать ${format}`, error);
+    }
+  }
 
+  showAdminStatus(`Сохраняю книгу в базе: ${book.title}`);
   await createSupabaseBook({
     title: book.title,
     author: book.author || "Викитека",
@@ -174,7 +184,7 @@ async function importSelectedBooks() {
   let duplicates = 0;
 
   for (const page of selected) {
-    showAdminStatus(`Импортирую: ${page.title}`);
+    showAdminStatus(`Импортирую ${imported + duplicates + 1} из ${selected.length}: ${page.title}`);
     const result = await importOneWikisourceBook(page);
     if (result === "duplicate") {
       duplicates += 1;

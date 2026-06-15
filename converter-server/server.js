@@ -23,6 +23,7 @@ const MIME_TYPES = {
   mobi: "application/x-mobipocket-ebook",
   txt: "text/plain; charset=utf-8",
 };
+const CONVERT_TIMEOUT_MS = 150000;
 
 app.use(cors());
 
@@ -335,12 +336,22 @@ function runCalibre(inputPath, outputPath) {
     });
 
     let stderr = "";
+    const timeout = setTimeout(() => {
+      child.kill("SIGTERM");
+      reject(new Error("Конвертация заняла слишком много времени и была остановлена."));
+    }, CONVERT_TIMEOUT_MS);
+
     child.stderr.on("data", (chunk) => {
       stderr += chunk.toString();
     });
 
-    child.on("error", reject);
+    child.on("error", (error) => {
+      clearTimeout(timeout);
+      reject(error);
+    });
+
     child.on("close", (code) => {
+      clearTimeout(timeout);
       if (code === 0) {
         resolve();
         return;
