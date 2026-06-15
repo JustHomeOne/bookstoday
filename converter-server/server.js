@@ -175,17 +175,28 @@ async function wikisourceApi(params) {
     url.searchParams.set(key, value);
   });
 
-  const apiResponse = await fetch(url, {
-    headers: {
-      "user-agent": "BooksTodayWikisourceImporter/1.0",
-    },
-  });
+  for (let attempt = 0; attempt < 4; attempt += 1) {
+    const apiResponse = await fetch(url, {
+      headers: {
+        "user-agent": "BooksTodayWikisourceImporter/1.0",
+      },
+    });
 
-  if (!apiResponse.ok) {
+    if (apiResponse.ok) {
+      return apiResponse.json();
+    }
+
+    if (apiResponse.status === 429 && attempt < 3) {
+      await new Promise((resolve) => {
+        setTimeout(resolve, 30000 * (attempt + 1));
+      });
+      continue;
+    }
+
     throw new Error(`Викитека вернула ошибку ${apiResponse.status}.`);
   }
 
-  return apiResponse.json();
+  throw new Error("Викитека временно ограничила запросы.");
 }
 
 function stripWikisourceHtml(html) {

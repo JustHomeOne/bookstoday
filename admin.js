@@ -16,6 +16,12 @@ const adminStatus = document.getElementById("admin-status");
 
 let categoryPages = [];
 
+function wait(ms) {
+  return new Promise((resolve) => {
+    window.setTimeout(resolve, ms);
+  });
+}
+
 function showAdminStatus(message, isError = false) {
   adminStatus.textContent = message;
   adminStatus.style.color = isError ? "#b91c1c" : "#0f766e";
@@ -37,24 +43,36 @@ function base64ToBlob(base64, mimeType) {
   return new Blob([bytes], { type: mimeType || "application/octet-stream" });
 }
 
-async function apiGet(path, params) {
+async function apiGet(path, params, options = {}) {
   const apiUrl = getConverterApiUrl();
   if (!apiUrl) {
     throw new Error("Адрес converter-server ещё не указан.");
   }
 
+  const retries = options.retries ?? 3;
+  const retryDelayMs = options.retryDelayMs ?? 60000;
   const url = new URL(`${apiUrl}${path}`);
   Object.entries(params).forEach(([key, value]) => {
     url.searchParams.set(key, value);
   });
 
-  const response = await fetch(url.toString());
-  if (!response.ok) {
+  for (let attempt = 0; attempt <= retries; attempt += 1) {
+    const response = await fetch(url.toString());
+    if (response.ok) {
+      return response.json();
+    }
+
     const errorText = await response.text();
+    if (response.status === 429 && attempt < retries) {
+      showAdminStatus(`Викитека ограничила запросы. Жду ${Math.round(retryDelayMs / 1000)} секунд и пробую снова...`);
+      await wait(retryDelayMs);
+      continue;
+    }
+
     throw new Error(errorText || "Сервер вернул ошибку.");
   }
 
-  return response.json();
+  throw new Error("Сервер временно ограничил запросы.");
 }
 
 function unlockAdmin() {
@@ -153,6 +171,11 @@ async function importSelectedBooks() {
       duplicates += 1;
     } else {
       imported += 1;
+    }
+
+    if (imported + duplicates < selected.length) {
+      showAdminStatus("Пауза 15 секунд перед следующей книгой, чтобы Викитека не ограничивала запросы...");
+      await wait(15000);
     }
   }
 
