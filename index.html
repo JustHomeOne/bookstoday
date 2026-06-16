@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Books Today - онлайн библиотека</title>
-  <link rel="stylesheet" href="styles.css?v=20260616-1" />
+  <link rel="stylesheet" href="styles.css?v=20260616-2" />
 </head>
 <body>
   <header class="site-header library-hero">
@@ -59,8 +59,10 @@
         <h2>Книжная полка</h2>
         <p id="count-text">Загрузка списка...</p>
       </div>
+      <button id="toggle-catalog" class="btn outline compact-btn" type="button" hidden>Весь каталог</button>
     </section>
 
+    <section id="home-shelves" class="home-shelves" aria-live="polite"></section>
     <section id="books-grid" class="books-grid" aria-live="polite"></section>
 
     <section id="empty-message" class="empty-state">
@@ -73,6 +75,6 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js?v=20260614-8"></script>
   <script src="supabase-api.js?v=20260615-6"></script>
-  <script src="index.js?v=20260615-6"></script>
+  <script src="index.js?v=20260616-2"></script>
 </body>
 </html>

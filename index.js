@@ -6,8 +6,12 @@ const yearMinInput = document.getElementById("filter-year-min");
 const yearMaxInput = document.getElementById("filter-year-max");
 const clearFiltersButton = document.getElementById("clear-filters");
 const booksGrid = document.getElementById("books-grid");
+const homeShelves = document.getElementById("home-shelves");
 const emptyMessage = document.getElementById("empty-message");
 const countText = document.getElementById("count-text");
+const toggleCatalogButton = document.getElementById("toggle-catalog");
+
+let showFullCatalog = false;
 
 function loadLocalBooks() {
   try {
@@ -120,62 +124,131 @@ function renderFormatButton(book, file) {
   `;
 }
 
-function renderBooks(books) {
+function createBookCard(book) {
+  const formats = getBookFormats(book);
+  const txtFile = formats.find((file) => file.format === "txt");
+  const availableFormats = new Set(formats.map((file) => file.format));
+  const card = document.createElement("article");
+  card.className = "book-card";
+
+  const badgeFormats = txtFile
+    ? [...new Set([...formats.map((file) => file.format), "epub", "mobi"])]
+    : formats.map((file) => file.format);
+
+  const badges = badgeFormats.length
+    ? badgeFormats.map((bookFormat) => `<span class="format-badge">${escapeHtml(getFormatLabel(bookFormat))}</span>`).join("")
+    : `<span class="format-badge empty">Нет файлов</span>`;
+
+  const lazyButtons = txtFile
+    ? ["epub", "mobi"]
+      .filter((format) => !availableFormats.has(format))
+      .map((format) => `
+        <a class="format-link lazy-link" href="${escapeHtml(createLazyDownloadUrl(book, format, txtFile))}">
+          Скачать ${escapeHtml(getFormatLabel(format))}
+        </a>
+      `)
+      .join("")
+    : "";
+
+  const formatButtons = formats.length
+    ? `${formats.map((file) => renderFormatButton(book, file)).join("")}${lazyButtons}`
+    : `<span class="muted">Файлы скоро появятся</span>`;
+
+  card.innerHTML = `
+    <div class="book-content">
+      <div>
+        <div class="book-topline">${badges}</div>
+        <h3>${escapeHtml(book.title)}</h3>
+        <p class="book-meta">${escapeHtml(book.author)}${book.year ? `, ${escapeHtml(book.year)}` : ""}</p>
+        ${book.isbn ? `<p class="book-isbn">ISBN: ${escapeHtml(book.isbn)}</p>` : ""}
+        ${book.description ? `<p class="book-description">${escapeHtml(book.description)}</p>` : ""}
+      </div>
+      <div class="format-list">${formatButtons}</div>
+    </div>
+  `;
+
+  return card;
+}
+
+function isFiltering() {
+  return Boolean(
+    queryInput.value.trim() ||
+    formatInput.value ||
+    yearMinInput.value.trim() ||
+    yearMaxInput.value.trim()
+  );
+}
+
+function renderShelf(title, description, books) {
+  if (!books.length) {
+    return;
+  }
+
+  const shelf = document.createElement("section");
+  shelf.className = "book-shelf";
+  shelf.innerHTML = `
+    <div class="shelf-heading">
+      <div>
+        <h3>${escapeHtml(title)}</h3>
+        <p>${escapeHtml(description)}</p>
+      </div>
+    </div>
+    <div class="shelf-row"></div>
+  `;
+
+  const shelfRow = shelf.querySelector(".shelf-row");
+  books.slice(0, 8).forEach((book) => {
+    shelfRow.appendChild(createBookCard(book));
+  });
+
+  homeShelves.appendChild(shelf);
+}
+
+function renderHomeShelves(books) {
+  homeShelves.innerHTML = "";
   booksGrid.innerHTML = "";
 
   if (!books.length) {
     emptyMessage.style.display = "block";
     countText.textContent = "Книги не найдены.";
+    toggleCatalogButton.hidden = true;
+    return;
+  }
+
+  emptyMessage.style.display = "none";
+  countText.textContent = `На главной показаны подборки. Всего книг: ${books.length}`;
+  toggleCatalogButton.hidden = false;
+  toggleCatalogButton.textContent = "Весь каталог";
+
+  const txtBooks = books.filter((book) => getBookFormats(book).some((file) => file.format === "txt"));
+  const downloadBooks = books.filter((book) => {
+    const formats = getBookFormats(book).map((file) => file.format);
+    return formats.includes("txt") || formats.includes("epub") || formats.includes("mobi");
+  });
+
+  renderShelf("Новинки", "Последние добавленные книги.", books);
+  renderShelf("Читать онлайн", "Книги, которые удобно открыть прямо на сайте.", txtBooks);
+  renderShelf("Скачать для электронной книги", "EPUB и MOBI доступны сразу или создаются при первом скачивании.", downloadBooks);
+}
+
+function renderBooks(books) {
+  homeShelves.innerHTML = "";
+  booksGrid.innerHTML = "";
+
+  if (!books.length) {
+    emptyMessage.style.display = "block";
+    countText.textContent = "Книги не найдены.";
+    toggleCatalogButton.hidden = true;
     return;
   }
 
   emptyMessage.style.display = "none";
   countText.textContent = `Найдено книг: ${books.length}`;
+  toggleCatalogButton.hidden = isFiltering();
+  toggleCatalogButton.textContent = "Подборки";
 
   books.forEach((book) => {
-    const formats = getBookFormats(book);
-    const txtFile = formats.find((file) => file.format === "txt");
-    const availableFormats = new Set(formats.map((file) => file.format));
-    const card = document.createElement("article");
-    card.className = "book-card";
-
-    const badgeFormats = txtFile
-      ? [...new Set([...formats.map((file) => file.format), "epub", "mobi"])]
-      : formats.map((file) => file.format);
-
-    const badges = badgeFormats.length
-      ? badgeFormats.map((bookFormat) => `<span class="format-badge">${escapeHtml(getFormatLabel(bookFormat))}</span>`).join("")
-      : `<span class="format-badge empty">Нет файлов</span>`;
-
-    const lazyButtons = txtFile
-      ? ["epub", "mobi"]
-        .filter((format) => !availableFormats.has(format))
-        .map((format) => `
-          <a class="format-link lazy-link" href="${escapeHtml(createLazyDownloadUrl(book, format, txtFile))}">
-            Скачать ${escapeHtml(getFormatLabel(format))}
-          </a>
-        `)
-        .join("")
-      : "";
-
-    const formatButtons = formats.length
-      ? `${formats.map((file) => renderFormatButton(book, file)).join("")}${lazyButtons}`
-      : `<span class="muted">Файлы скоро появятся</span>`;
-
-    card.innerHTML = `
-      <div class="book-content">
-        <div>
-          <div class="book-topline">${badges}</div>
-          <h3>${escapeHtml(book.title)}</h3>
-          <p class="book-meta">${escapeHtml(book.author)}${book.year ? `, ${escapeHtml(book.year)}` : ""}</p>
-          ${book.isbn ? `<p class="book-isbn">ISBN: ${escapeHtml(book.isbn)}</p>` : ""}
-          ${book.description ? `<p class="book-description">${escapeHtml(book.description)}</p>` : ""}
-        </div>
-        <div class="format-list">${formatButtons}</div>
-      </div>
-    `;
-
-    booksGrid.appendChild(card);
+    booksGrid.appendChild(createBookCard(book));
   });
 }
 
@@ -194,7 +267,14 @@ async function loadBooks() {
 
 async function refresh() {
   const books = await loadBooks();
-  renderBooks(filterBooks(books));
+  const filteredBooks = filterBooks(books);
+
+  if (!isFiltering() && !showFullCatalog) {
+    renderHomeShelves(filteredBooks);
+    return;
+  }
+
+  renderBooks(filteredBooks);
 }
 
 function resetFilters() {
@@ -202,6 +282,7 @@ function resetFilters() {
   formatInput.value = "";
   yearMinInput.value = "";
   yearMaxInput.value = "";
+  showFullCatalog = false;
   refresh();
 }
 
@@ -210,4 +291,8 @@ function resetFilters() {
 });
 
 clearFiltersButton.addEventListener("click", resetFilters);
+toggleCatalogButton.addEventListener("click", () => {
+  showFullCatalog = !showFullCatalog;
+  refresh();
+});
 refresh();
