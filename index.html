@@ -4,15 +4,20 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Books Today - онлайн библиотека</title>
-  <link rel="stylesheet" href="styles.css?v=20260614-9" />
+  <link rel="stylesheet" href="styles.css?v=20260616-1" />
 </head>
 <body>
-  <header class="site-header">
+  <header class="site-header library-hero">
     <div class="container header-grid">
       <div>
-        <p class="eyebrow">Онлайн библиотека</p>
+        <p class="eyebrow">Свободная онлайн-библиотека</p>
         <h1>Books Today</h1>
-        <p>Книги в EPUB, MOBI и TXT: скачивайте нужный формат или читайте текст прямо на сайте.</p>
+        <p>Читайте книги прямо на сайте, скачивайте TXT сразу, а EPUB и MOBI создаются по запросу и сохраняются для следующих читателей.</p>
+        <div class="hero-stats" aria-label="Возможности библиотеки">
+          <span>TXT-чтение</span>
+          <span>EPUB и MOBI</span>
+          <span>Импорт из Викитеки</span>
+        </div>
       </div>
       <nav class="top-actions" aria-label="Основная навигация">
         <a class="btn outline light" href="auth.html">Вход</a>
@@ -23,8 +28,8 @@
   </header>
 
   <main class="container">
-    <section class="toolbar" aria-label="Фильтры каталога">
-      <div class="field-group">
+    <section class="toolbar catalog-toolbar" aria-label="Фильтры каталога">
+      <div class="field-group search-field">
         <label for="search-query">Поиск</label>
         <input id="search-query" type="search" placeholder="Название, автор, ISBN" />
       </div>
@@ -39,7 +44,7 @@
       </div>
       <div class="field-group">
         <label for="filter-year-min">Год от</label>
-        <input id="filter-year-min" type="number" min="0" placeholder="2000" />
+        <input id="filter-year-min" type="number" min="0" placeholder="1900" />
       </div>
       <div class="field-group">
         <label for="filter-year-max">Год до</label>
@@ -48,9 +53,10 @@
       <button id="clear-filters" class="btn outline" type="button">Сбросить</button>
     </section>
 
-    <section class="section-heading">
+    <section class="section-heading catalog-heading">
       <div>
-        <h2>Каталог книг</h2>
+        <p class="eyebrow dark">Каталог</p>
+        <h2>Книжная полка</h2>
         <p id="count-text">Загрузка списка...</p>
       </div>
     </section>
@@ -59,7 +65,7 @@
 
     <section id="empty-message" class="empty-state">
       <h2>Пока нет книг</h2>
-      <p>Добавьте первую книгу и файл. После сохранения она появится в каталоге.</p>
+      <p>Добавьте первую книгу или импортируйте тексты из Викитеки через админ-панель.</p>
       <a class="btn" href="add.html">Добавить книгу</a>
     </section>
   </main>
