@@ -51,11 +51,15 @@ function assertPublicMetadataUrl(value) {
   return parsed.toString();
 }
 
-function decodeHtmlEntities(value) {
+function decodeNumericHtmlEntities(value) {
   return String(value || "")
+    .replace(/&#(\d+);?/g, (_match, code) => String.fromCodePoint(Number(code)))
+    .replace(/&#x([0-9a-f]+);?/gi, (_match, code) => String.fromCodePoint(parseInt(code, 16)));
+}
+
+function decodeHtmlEntities(value) {
+  const decoded = decodeNumericHtmlEntities(String(value || "")
     .replace(/&nbsp;/g, " ")
-    .replace(/&#(\d+);/g, (_match, code) => String.fromCodePoint(Number(code)))
-    .replace(/&#x([0-9a-f]+);/gi, (_match, code) => String.fromCodePoint(parseInt(code, 16)))
     .replace(/&amp;/g, "&")
     .replace(/&quot;/g, "\"")
     .replace(/&#39;/g, "'")
@@ -63,7 +67,9 @@ function decodeHtmlEntities(value) {
     .replace(/&raquo;/g, "»")
     .replace(/&ndash;/g, "–")
     .replace(/&mdash;/g, "—")
-    .replace(/<[^>]*>/g, "")
+    .replace(/<[^>]*>/g, ""));
+
+  return decoded
     .replace(/\s+/g, " ")
     .trim();
 }
