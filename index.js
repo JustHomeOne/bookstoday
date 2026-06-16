@@ -216,9 +216,9 @@ function renderHomeShelves(books) {
   }
 
   emptyMessage.style.display = "none";
-  countText.textContent = `На главной показаны подборки. Всего книг: ${books.length}`;
+  countText.textContent = "Книги загружены.";
   toggleCatalogButton.hidden = false;
-  toggleCatalogButton.textContent = "Весь каталог";
+  toggleCatalogButton.textContent = "Показать все";
 
   const txtBooks = books.filter((book) => getBookFormats(book).some((file) => file.format === "txt"));
   const downloadBooks = books.filter((book) => {
@@ -228,7 +228,7 @@ function renderHomeShelves(books) {
 
   renderShelf("Новинки", "Последние добавленные книги.", books);
   renderShelf("Читать онлайн", "Книги, которые удобно открыть прямо на сайте.", txtBooks);
-  renderShelf("Скачать для электронной книги", "EPUB и MOBI доступны сразу или создаются при первом скачивании.", downloadBooks);
+  renderShelf("Для электронной книги", "Форматы для ридеров и приложений.", downloadBooks);
 }
 
 function renderBooks(books) {
@@ -245,7 +245,7 @@ function renderBooks(books) {
   emptyMessage.style.display = "none";
   countText.textContent = `Найдено книг: ${books.length}`;
   toggleCatalogButton.hidden = isFiltering();
-  toggleCatalogButton.textContent = "Подборки";
+  toggleCatalogButton.textContent = "К подборкам";
 
   books.forEach((book) => {
     booksGrid.appendChild(createBookCard(book));

@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Books Today - онлайн библиотека</title>
-  <link rel="stylesheet" href="styles.css?v=20260616-2" />
+  <link rel="stylesheet" href="styles.css?v=20260616-3" />
 </head>
 <body>
   <header class="site-header library-hero">
@@ -12,16 +12,10 @@
       <div>
         <p class="eyebrow">Свободная онлайн-библиотека</p>
         <h1>Books Today</h1>
-        <p>Читайте книги прямо на сайте, скачивайте TXT сразу, а EPUB и MOBI создаются по запросу и сохраняются для следующих читателей.</p>
-        <div class="hero-stats" aria-label="Возможности библиотеки">
-          <span>TXT-чтение</span>
-          <span>EPUB и MOBI</span>
-          <span>Импорт из Викитеки</span>
-        </div>
+        <p>Место для спокойного чтения: выбирайте книгу, открывайте ее онлайн или скачивайте в удобном формате.</p>
       </div>
       <nav class="top-actions" aria-label="Основная навигация">
         <a class="btn outline light" href="auth.html">Вход</a>
-        <a class="btn outline light" href="convert.html">Конвертер</a>
         <a class="btn light" href="add.html">Добавить книгу</a>
       </nav>
     </div>
@@ -55,11 +49,9 @@
 
     <section class="section-heading catalog-heading">
       <div>
-        <p class="eyebrow dark">Каталог</p>
-        <h2>Книжная полка</h2>
-        <p id="count-text">Загрузка списка...</p>
+        <p id="count-text" class="visually-hidden" aria-live="polite">Загрузка списка...</p>
       </div>
-      <button id="toggle-catalog" class="btn outline compact-btn" type="button" hidden>Весь каталог</button>
+      <button id="toggle-catalog" class="btn outline compact-btn" type="button" hidden>Показать все</button>
     </section>
 
     <section id="home-shelves" class="home-shelves" aria-live="polite"></section>
@@ -75,6 +67,6 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js?v=20260614-8"></script>
   <script src="supabase-api.js?v=20260615-6"></script>
-  <script src="index.js?v=20260616-2"></script>
+  <script src="index.js?v=20260616-3"></script>
 </body>
 </html>
