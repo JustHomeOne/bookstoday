@@ -1,6 +1,7 @@
 const params = new URLSearchParams(window.location.search);
 const title = params.get("title") || "Книга";
 const fileUrl = params.get("file");
+const bookId = params.get("bookId");
 
 const titleEl = document.getElementById("reader-title");
 const readerText = document.getElementById("reader-text");
@@ -11,15 +12,27 @@ const chapterCounter = document.getElementById("chapter-counter");
 const progressBar = document.getElementById("progress-bar");
 const prevButton = document.getElementById("prev-chapter");
 const nextButton = document.getElementById("next-chapter");
+const readerUserStatus = document.getElementById("reader-user-status");
+const readerLoginLink = document.getElementById("reader-login-link");
+const noteForm = document.getElementById("note-form");
+const noteText = document.getElementById("note-text");
+const notesList = document.getElementById("notes-list");
 
 const CHUNK_SIZE = 12000;
 let chapters = [];
 let currentChapterIndex = 0;
+let currentSession = null;
+let notes = [];
+let progressSaveTimer = null;
 
 titleEl.textContent = title;
 
 function getStorageKey() {
   return `reader-progress:${fileUrl || title}`;
+}
+
+function getBookKey() {
+  return bookId || fileUrl || title;
 }
 
 function normalizeText(text) {
@@ -246,7 +259,34 @@ function splitTextIntoChapters(text) {
   return headingChapters.length ? headingChapters : splitIntoReadableParts(normalized);
 }
 
-function saveProgress() {
+async function initReaderSession() {
+  if (!hasSupabase()) {
+    readerUserStatus.textContent = "Войдите, чтобы сохранять заметки между устройствами.";
+    return;
+  }
+
+  try {
+    currentSession = await getSupabaseSession();
+  } catch (error) {
+    console.error(error);
+    currentSession = null;
+  }
+
+  if (currentSession?.user?.email) {
+    readerUserStatus.textContent = `Заметки сохраняются для ${currentSession.user.email}.`;
+    readerLoginLink.hidden = true;
+    noteForm.hidden = false;
+    notesList.hidden = false;
+    return;
+  }
+
+  readerUserStatus.textContent = "Войдите, чтобы сохранять заметки между устройствами.";
+  readerLoginLink.hidden = false;
+  noteForm.hidden = true;
+  notesList.hidden = true;
+}
+
+function saveLocalProgress() {
   try {
     localStorage.setItem(getStorageKey(), String(currentChapterIndex));
   } catch {
@@ -254,7 +294,42 @@ function saveProgress() {
   }
 }
 
-function loadProgress() {
+function queueRemoteProgressSave() {
+  if (!currentSession?.user) return;
+
+  clearTimeout(progressSaveTimer);
+  progressSaveTimer = setTimeout(async () => {
+    try {
+      await saveReaderProgress({
+        bookKey: getBookKey(),
+        bookTitle: title,
+        fileUrl,
+        chapterIndex: currentChapterIndex,
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  }, 450);
+}
+
+function saveProgress() {
+  saveLocalProgress();
+  queueRemoteProgressSave();
+}
+
+async function loadProgress() {
+  if (currentSession?.user) {
+    try {
+      const remoteProgress = await fetchReaderProgress(getBookKey());
+
+      if (Number.isInteger(remoteProgress?.chapter_index) && remoteProgress.chapter_index >= 0) {
+        return remoteProgress.chapter_index;
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   try {
     const saved = Number(localStorage.getItem(getStorageKey()));
     return Number.isInteger(saved) && saved >= 0 ? saved : 0;
@@ -294,6 +369,51 @@ function renderChapter(index) {
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
+function formatNoteChapter(index) {
+  const chapter = chapters[index];
+  return chapter ? chapter.title : `Глава ${Number(index) + 1}`;
+}
+
+function renderNotes() {
+  if (!notesList || !currentSession?.user) return;
+
+  if (!notes.length) {
+    notesList.innerHTML = `<p class="muted">Заметок пока нет.</p>`;
+    return;
+  }
+
+  notesList.innerHTML = notes.map((note) => `
+    <article class="note-item">
+      <div>
+        <strong>${escapeHtml(formatNoteChapter(note.chapter_index))}</strong>
+        <p>${escapeHtml(note.note_text)}</p>
+      </div>
+      <button class="note-delete" type="button" data-note-id="${escapeHtml(note.id)}" aria-label="Удалить заметку">Удалить</button>
+    </article>
+  `).join("");
+}
+
+async function loadNotes() {
+  if (!currentSession?.user) return;
+
+  try {
+    notes = await fetchReaderNotes(getBookKey());
+    renderNotes();
+  } catch (error) {
+    console.error(error);
+    notesList.innerHTML = `<p class="muted">Не удалось загрузить заметки.</p>`;
+  }
+}
+
+function escapeHtml(value) {
+  return String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 async function loadText() {
   if (!fileUrl) {
     readerStatus.textContent = "Ссылка на текст не найдена.";
@@ -308,7 +428,9 @@ async function loadText() {
 
     chapters = splitTextIntoChapters(await response.text());
     renderChapterOptions();
-    renderChapter(Math.min(loadProgress(), chapters.length - 1));
+    const savedProgress = await loadProgress();
+    renderChapter(Math.min(savedProgress, chapters.length - 1));
+    await loadNotes();
   } catch (error) {
     readerStatus.textContent = error.message || "Ошибка загрузки текста.";
   }
@@ -326,4 +448,58 @@ nextButton.addEventListener("click", () => {
   renderChapter(currentChapterIndex + 1);
 });
 
-loadText();
+noteForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  if (!currentSession?.user) {
+    readerStatus.textContent = "Войдите, чтобы сохранять заметки.";
+    return;
+  }
+
+  const text = noteText.value.trim();
+  if (!text) return;
+
+  noteForm.querySelector("button").disabled = true;
+
+  try {
+    const note = await createReaderNote({
+      bookKey: getBookKey(),
+      bookTitle: title,
+      fileUrl,
+      chapterIndex: currentChapterIndex,
+      noteText: text,
+    });
+
+    if (note) {
+      notes = [note, ...notes];
+      noteText.value = "";
+      renderNotes();
+    }
+  } catch (error) {
+    readerStatus.textContent = error.message || "Не удалось сохранить заметку.";
+  } finally {
+    noteForm.querySelector("button").disabled = false;
+  }
+});
+
+notesList.addEventListener("click", async (event) => {
+  const button = event.target.closest("[data-note-id]");
+  if (!button) return;
+
+  const noteId = button.dataset.noteId;
+  button.disabled = true;
+
+  try {
+    await deleteReaderNote(noteId);
+    notes = notes.filter((note) => note.id !== noteId);
+    renderNotes();
+  } catch (error) {
+    readerStatus.textContent = error.message || "Не удалось удалить заметку.";
+    button.disabled = false;
+  }
+});
+
+(async function initReader() {
+  await initReaderSession();
+  await loadText();
+}());

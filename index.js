@@ -81,6 +81,7 @@ function createDownloadUrl(book, file) {
 
 function createReadUrl(book, file) {
   const params = new URLSearchParams({
+    bookId: book.id || "",
     title: book.title || "Книга",
     file: file.url,
     v: "20260614-11",

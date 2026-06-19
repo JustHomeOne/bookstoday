@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Читать книгу - Books Today</title>
-  <link rel="stylesheet" href="styles.css?v=20260616-1" />
+  <link rel="stylesheet" href="styles.css?v=20260619-1" />
 </head>
 <body class="reader-page">
   <header class="site-header compact reader-header">
@@ -36,6 +36,19 @@
         <button id="prev-chapter" class="btn outline" type="button">Назад</button>
         <button id="next-chapter" class="btn" type="button">Дальше</button>
       </div>
+
+      <div class="reader-account">
+        <p id="reader-user-status" class="muted">Войдите, чтобы сохранять заметки между устройствами.</p>
+        <a id="reader-login-link" class="format-link read-link" href="auth.html">Войти</a>
+      </div>
+
+      <form id="note-form" class="note-form" hidden>
+        <label for="note-text">Заметка к текущей главе</label>
+        <textarea id="note-text" rows="4" placeholder="Мысль, цитата или пометка..."></textarea>
+        <button class="btn" type="submit">Сохранить заметку</button>
+      </form>
+
+      <div id="notes-list" class="notes-list" hidden></div>
     </aside>
 
     <article class="reader-card">
@@ -45,6 +58,9 @@
     </article>
   </main>
 
-  <script src="read.js?v=20260614-11"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js?v=20260614-8"></script>
+  <script src="supabase-api.js?v=20260619-1"></script>
+  <script src="read.js?v=20260619-1"></script>
 </body>
 </html>

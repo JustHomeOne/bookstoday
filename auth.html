@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Вход - Books Today</title>
-  <link rel="stylesheet" href="styles.css?v=20260614-9" />
+  <link rel="stylesheet" href="styles.css?v=20260619-1" />
 </head>
 <body>
   <header class="site-header compact">
@@ -12,7 +12,7 @@
       <div>
         <p class="eyebrow">Аккаунт</p>
         <h1>Вход и регистрация</h1>
-        <p>Аккаунты пока отключены. Библиотека работает без авторизации.</p>
+        <p>Войдите, чтобы сохранять место чтения и заметки между устройствами.</p>
       </div>
       <nav class="top-actions" aria-label="Основная навигация">
         <a class="btn outline light" href="index.html">Каталог</a>
@@ -21,27 +21,31 @@
   </header>
 
   <main class="container narrow">
-    <div class="disabled-banner">
-      <p>Вход и регистрация временно отключены. Можно продолжать пользоваться библиотекой без аккаунта.</p>
-    </div>
-
     <section class="card auth-card">
+      <div id="current-user-box" class="account-box" hidden>
+        <div>
+          <p class="eyebrow dark">Вы вошли</p>
+          <strong id="current-user-email"></strong>
+        </div>
+        <button id="logout-button" class="btn outline" type="button">Выйти</button>
+      </div>
+
       <div class="auth-tabs">
-        <button class="tab active" data-target="login-panel" disabled>Вход</button>
-        <button class="tab" data-target="register-panel" disabled>Регистрация</button>
+        <button class="tab active" data-target="login-panel" type="button">Вход</button>
+        <button class="tab" data-target="register-panel" type="button">Регистрация</button>
       </div>
 
       <div id="login-panel" class="auth-panel active">
         <form id="login-form">
           <div class="field-group">
             <label for="login-email">Email</label>
-            <input id="login-email" name="email" type="email" required disabled />
+            <input id="login-email" name="email" type="email" autocomplete="email" required />
           </div>
           <div class="field-group">
             <label for="login-password">Пароль</label>
-            <input id="login-password" name="password" type="password" required disabled />
+            <input id="login-password" name="password" type="password" autocomplete="current-password" required />
           </div>
-          <button type="submit" class="btn" disabled>Войти</button>
+          <button type="submit" class="btn">Войти</button>
         </form>
       </div>
 
@@ -49,17 +53,17 @@
         <form id="register-form">
           <div class="field-group">
             <label for="register-email">Email</label>
-            <input id="register-email" name="email" type="email" required disabled />
+            <input id="register-email" name="email" type="email" autocomplete="email" required />
           </div>
           <div class="field-group">
             <label for="register-password">Пароль</label>
-            <input id="register-password" name="password" type="password" required minlength="6" disabled />
+            <input id="register-password" name="password" type="password" autocomplete="new-password" required minlength="6" />
           </div>
           <div class="field-group">
             <label for="register-password-confirm">Подтвердите пароль</label>
-            <input id="register-password-confirm" name="passwordConfirm" type="password" required minlength="6" disabled />
+            <input id="register-password-confirm" name="passwordConfirm" type="password" autocomplete="new-password" required minlength="6" />
           </div>
-          <button type="submit" class="btn" disabled>Зарегистрироваться</button>
+          <button type="submit" class="btn">Зарегистрироваться</button>
         </form>
       </div>
 
@@ -68,6 +72,9 @@
     </section>
   </main>
 
-  <script src="auth.js?v=20260614-8"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js?v=20260614-8"></script>
+  <script src="supabase-api.js?v=20260619-1"></script>
+  <script src="auth.js?v=20260619-1"></script>
 </body>
 </html>
